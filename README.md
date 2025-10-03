@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # WAGERVERSE
 
 WAGERVERSE is a modern, full-stack e-sports betting platform. It provides a seamless experience for users to bet on their favorite teams across various e-sport tournaments. The application features real-time odds, a secure user authentication system, a personalized dashboard, and a comprehensive admin panel for platform management.
@@ -166,4 +165,3 @@ To run WAGERVERSE locally, follow these steps:
     ```
 
 The application should now be running on `http://localhost:8080`.
->>>>>>> 6ea6c5ee5d1e351411ab88e9428c87ca5e581012
