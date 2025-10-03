@@ -90,13 +90,13 @@ export default function Dashboard() {
 
   const getStatusBadge = (status: string, result: string | null) => {
     if (status === "pending") {
-      return <Badge variant="outline" className="border-warning/50 text-warning">Pending</Badge>;
+      return <Badge variant="outline" className="border-warning/50 text-warning">en attente</Badge>;
     }
     if (result === "won") {
-      return <Badge variant="outline" className="border-success/50 text-success">Won</Badge>;
+      return <Badge variant="outline" className="border-success/50 text-success">Gangné</Badge>;
     }
     if (result === "lost") {
-      return <Badge variant="outline" className="border-destructive/50 text-destructive">Lost</Badge>;
+      return <Badge variant="outline" className="border-destructive/50 text-destructive">Perdu</Badge>;
     }
     return <Badge variant="outline">Unknown</Badge>;
   };
@@ -109,7 +109,7 @@ export default function Dashboard() {
       <div className="min-h-screen bg-background">
         <Navbar />
         <div className="container mx-auto px-4 py-12 text-center">
-          <p className="text-muted-foreground">Loading dashboard...</p>
+          <p className="text-muted-foreground">Chargement...</p>
         </div>
       </div>
     );
@@ -209,8 +209,8 @@ export default function Dashboard() {
                       </div>
                       <div className="text-right">
                         <div className="font-mono font-bold">{bet.amount.toFixed(2)}€</div>
-                        <div className="text-sm text-muted-foreground">Cote: {bet.odds}x</div>
-                        <div className="text-sm text-accent">Gagné: {bet.potential_win.toFixed(2)}€</div>
+                        <div className="text-sm text-muted-foreground">Cote: x{bet.odds}</div>
+                        <div className="text-sm text-accent">A gagner: {bet.potential_win.toFixed(2)}€</div>
                       </div>
                     </div>
                   ))}

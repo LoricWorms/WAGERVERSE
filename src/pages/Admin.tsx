@@ -159,7 +159,7 @@ export default function Admin() {
     const { error } = await supabase.from("matches").insert([matchForm]);
 
     if (error) {
-      toast.error("Error creating match");
+      toast.error("Erreur lors de la création du match");
       console.error(error);
     } else {
       // Create default odds
@@ -168,7 +168,7 @@ export default function Admin() {
         { match_id: matchForm.team1_id, team_id: matchForm.team2_id, odds: 1.85 },
       ]);
 
-      toast.success("Match created successfully");
+      toast.success("Match créé avec succès");
       setMatchForm({
         team1_id: "",
         team2_id: "",
@@ -182,14 +182,14 @@ export default function Admin() {
   };
 
   const handleDeleteMatch = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this match?")) return;
+    if (!confirm("Etes-vous sûr de vouloir supprimer ce match ??")) return;
 
     const { error } = await supabase.from("matches").delete().eq("id", id);
 
     if (error) {
-      toast.error("Error deleting match");
+      toast.error("Erreur lors de la suppression du match");
     } else {
-      toast.success("Match deleted");
+      toast.success("Match supprimé");
       fetchData();
     }
   };

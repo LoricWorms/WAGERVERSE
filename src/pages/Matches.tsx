@@ -58,7 +58,7 @@ export default function Matches() {
       .order("match_date", { ascending: true });
 
     if (error) {
-      toast.error("Error loading matches");
+      toast.error("Erreur lors du chargement des matchs");
       console.error(error);
     } else {
       setMatches(data || []);
@@ -70,7 +70,7 @@ export default function Matches() {
     const amount = parseFloat(betAmounts[`${matchId}-${teamId}`] || "0");
     
     if (!amount || amount <= 0) {
-      toast.error("Please enter a valid amount");
+      toast.error("Veuillez saisir un montant valide");
       return;
     }
 
@@ -82,7 +82,7 @@ export default function Matches() {
       .single();
 
     if (!profile || profile.balance < amount) {
-      toast.error("Insufficient balance");
+      toast.error("Solde insuffisant");
       return;
     }
 
@@ -100,7 +100,7 @@ export default function Matches() {
       });
 
     if (betError) {
-      toast.error("Error placing bet");
+      toast.error("Erreur lors du placement du pari");
       console.error(betError);
       return;
     }
@@ -114,7 +114,7 @@ export default function Matches() {
       })
       .eq("id", user.id);
 
-    toast.success(`Bet placed! Potential win: $${(amount * odds).toFixed(2)}`);
+    toast.success(`Pari placé ! Gain potentiel: ${(amount * odds).toFixed(2)}€`);
     setBetAmounts({ ...betAmounts, [`${matchId}-${teamId}`]: "" });
     
     // Refresh to update balance in navbar
@@ -131,7 +131,7 @@ export default function Matches() {
       <div className="min-h-screen bg-background">
         <Navbar />
         <div className="container mx-auto px-4 py-12 text-center">
-          <p className="text-muted-foreground">Loading matches...</p>
+          <p className="text-muted-foreground">Chargement...</p>
         </div>
       </div>
     );
@@ -197,7 +197,7 @@ export default function Matches() {
                           <div>
                             <h3 className="font-bold text-lg">{match.team1?.name} "{match.team1?.tag}"</h3>
                             <Badge variant="outline" className="border-primary/50 text-primary">
-                              cote: {getOdds(match, match.team1?.id)}x
+                              cote: x{getOdds(match, match.team1?.id)}
                             </Badge>
                           </div>
                         </div>
@@ -241,7 +241,7 @@ export default function Matches() {
                           <div>
                             <h3 className="font-bold text-lg">{match.team2?.name} "{match.team2?.tag}"</h3>
                             <Badge variant="outline" className="border-accent/50 text-accent">
-                              cote: {getOdds(match, match.team2?.id)}x
+                              cote: x{getOdds(match, match.team2?.id)}
                             </Badge>
                           </div>
                         </div>
