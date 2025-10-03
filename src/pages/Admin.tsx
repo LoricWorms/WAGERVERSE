@@ -55,7 +55,7 @@ export default function Admin() {
     team2_id: "",
     game_id: "",
     match_date: "",
-    status: "scheduled",
+    status: "programmé",
     format: "BO3",
   });
 
