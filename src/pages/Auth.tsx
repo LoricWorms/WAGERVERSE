@@ -36,7 +36,7 @@ export default function Auth() {
         });
 
         if (error) throw error;
-        toast.success("Welcome back!");
+        toast.success("Bon retour!");
         navigate("/matches");
       } else {
         const { error } = await supabase.auth.signUp({
@@ -51,14 +51,14 @@ export default function Auth() {
         });
 
         if (error) throw error;
-        toast.success("Account created! Welcome to WAGERVERSE");
+        toast.success("Compte créé! Bienvenue sur WAGERVERSE");
         navigate("/matches");
       }
     } catch (error: unknown) {
   if (error instanceof Error) {
     toast.error(error.message);
   } else {
-    toast.error("An unexpected error occurred");
+    toast.error("Une erreur inattendue s'est produite");
   }
 }
 
@@ -74,12 +74,12 @@ export default function Auth() {
             <Trophy className="h-12 w-12 text-primary animate-pulse" />
           </div>
           <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-            {isLogin ? "Welcome Back" : "Join WAGERVERSE"}
+            {isLogin ? "Bon retour" : "Rejoins WAGERVERSE"}
           </CardTitle>
           <CardDescription className="text-muted-foreground">
             {isLogin
-              ? "Sign in to start betting on your favorite teams"
-              : "Create an account and get $1000 welcome bonus"}
+              ? "Connectez-vous pour commencer à parier sur vos équipes préférées"
+              : "Créez un compte et obtenez un bonus de bienvenue de 1000 $"}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -90,7 +90,7 @@ export default function Auth() {
                 <Input
                   id="username"
                   type="text"
-                  placeholder="Enter your username"
+                  placeholder="Entrez votre nom d'utilisateur"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="bg-muted border-border"
@@ -102,7 +102,7 @@ export default function Auth() {
               <Input
                 id="email"
                 type="email"
-                placeholder="Enter your email"
+                placeholder="Entrez votre adresse email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -110,11 +110,11 @@ export default function Auth() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="Mot de passe">Mot de passe</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="Enter your password"
+                placeholder="Entrez votre mot de passe"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -126,7 +126,7 @@ export default function Auth() {
               className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90"
               disabled={loading}
             >
-              {loading ? "Loading..." : isLogin ? "Sign In" : "Sign Up"}
+              {loading ? "Loading..." : isLogin ? "Se connecter" : "S'inscrire"}
             </Button>
           </form>
           <div className="mt-4 text-center">
@@ -135,7 +135,7 @@ export default function Auth() {
               onClick={() => setIsLogin(!isLogin)}
               className="text-sm text-primary hover:text-accent transition-colors"
             >
-              {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
+              {isLogin ? "Vous n'avez pas de compte ? S'inscrire" : "Vous avez un compte ? Se connecter"}
             </button>
           </div>
         </CardContent>

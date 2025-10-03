@@ -17,7 +17,7 @@ const Index = () => {
           <div className="max-w-4xl mx-auto text-center space-y-8">
             <div className="inline-flex items-center space-x-2 bg-muted/50 backdrop-blur-sm px-4 py-2 rounded-full border border-primary/20">
               <Zap className="h-4 w-4 text-primary animate-pulse" />
-              <span className="text-sm font-medium">Live Betting • Real-time Odds • Instant Payouts</span>
+              <span className="text-sm font-medium">Paris en direct • Cotes en temps réel • Paiements instantanés</span>
             </div>
             
             <h1 className="text-5xl md:text-7xl font-bold leading-tight">
@@ -25,30 +25,30 @@ const Index = () => {
                 WAGERVERSE
               </span>
               <br />
-              <span className="text-foreground">E-Sports Betting</span>
+              <span className="text-foreground">Paris E-Sport</span>
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
-              The ultimate platform for e-sports enthusiasts. Place bets on your favorite teams, track live matches, and win big with competitive odds.
+              La plateforme idéale pour les passionnés d'e-sport. Pariez sur vos équipes préférées, suivez les matchs en direct et remportez gros avec des cotes compétitives.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" asChild className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-lg px-8">
-                <Link to="/auth">Start Betting Now</Link>
+                <Link to="/auth">Commencez à parier</Link>
               </Button>
               <Button size="lg" variant="outline" asChild className="border-primary/50 hover:bg-primary/10 text-lg px-8">
-                <Link to="/matches">View Live Matches</Link>
+                <Link to="/matches">Voir les matchs en direct</Link>
               </Button>
             </div>
             
             <div className="grid grid-cols-3 gap-8 pt-12">
               <div className="space-y-2">
                 <div className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">$1M+</div>
-                <div className="text-sm text-muted-foreground">Total Payouts</div>
+                <div className="text-sm text-muted-foreground">Gain totaux</div>
               </div>
               <div className="space-y-2">
                 <div className="text-4xl font-bold bg-gradient-to-r from-secondary to-accent bg-clip-text text-transparent">50K+</div>
-                <div className="text-sm text-muted-foreground">Active Users</div>
+                <div className="text-sm text-muted-foreground">Utilisateurs actifs</div>
               </div>
               <div className="space-y-2">
                 <div className="text-4xl font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">99.9%</div>
@@ -64,7 +64,7 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <h2 className="text-4xl font-bold text-center mb-12">
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Why Choose WAGERVERSE
+              Pourquoi parier avec WAGERVERSE
             </span>
           </h2>
           
@@ -73,9 +73,9 @@ const Index = () => {
               <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
                 <Trophy className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="text-xl font-bold mb-2">Best Odds</h3>
+              <h3 className="text-xl font-bold mb-2">Meilleures cotes</h3>
               <p className="text-muted-foreground">
-                Competitive odds across all major e-sports tournaments. Maximize your potential winnings.
+                Des cotes compétitives sur tous les grands tournois d'e-sport. Maximisez vos gains potentiels.
               </p>
             </div>
             
@@ -83,9 +83,9 @@ const Index = () => {
               <div className="h-12 w-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-4">
                 <Zap className="h-6 w-6 text-secondary" />
               </div>
-              <h3 className="text-xl font-bold mb-2">Instant Payouts</h3>
+              <h3 className="text-xl font-bold mb-2">Paiements instantanés</h3>
               <p className="text-muted-foreground">
-                Get your winnings instantly. No waiting, no hassle. Your money, your time.
+                Recevez vos gains instantanément. Sans attente, sans tracas. Votre argent, votre temps.
               </p>
             </div>
             
@@ -93,9 +93,9 @@ const Index = () => {
               <div className="h-12 w-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4">
                 <Shield className="h-6 w-6 text-accent" />
               </div>
-              <h3 className="text-xl font-bold mb-2">Secure Platform</h3>
+              <h3 className="text-xl font-bold mb-2">Plateforme sécurisée</h3>
               <p className="text-muted-foreground">
-                Bank-level security. Your funds and data are always protected with industry-leading encryption.
+                Sécurité de niveau bancaire. Vos fonds et vos données sont toujours protégés grâce à un chiffrement de pointe.
               </p>
             </div>
           </div>
@@ -107,12 +107,12 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center space-y-6 p-12 rounded-2xl bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 border border-primary/20">
             <TrendingUp className="h-16 w-16 mx-auto text-primary" />
-            <h2 className="text-4xl font-bold">Ready to Win Big?</h2>
+            <h2 className="text-4xl font-bold">Prêt à gagner gros ?</h2>
             <p className="text-xl text-muted-foreground">
-              Join thousands of winners on WAGERVERSE. Get $1000 welcome bonus when you sign up today.
+              Rejoignez des milliers de gagnants sur WAGERVERSE. Recevez un bonus de bienvenue de 50€ dès aujourd'hui.
             </p>
             <Button size="lg" asChild className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-lg px-8">
-              <Link to="/auth">Create Account Now</Link>
+              <Link to="/auth">Créer un compte maintenant</Link>
             </Button>
           </div>
         </div>

@@ -146,17 +146,17 @@ export default function Matches() {
           <div className="mb-8">
             <h1 className="text-4xl font-bold mb-2">
               <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                Live Matches
+                Matchs en direct
               </span>
             </h1>
-            <p className="text-muted-foreground">Place your bets on upcoming matches</p>
+            <p className="text-muted-foreground">Placez vos paris sur les matchs à venir</p>
           </div>
 
           {matches.length === 0 ? (
             <Card className="border-border">
               <CardContent className="py-12 text-center">
                 <Trophy className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-muted-foreground">No upcoming matches available</p>
+                <p className="text-muted-foreground">Aucun match à venir disponible</p>
               </CardContent>
             </Card>
           ) : (
@@ -188,14 +188,14 @@ export default function Matches() {
                           <div>
                             <h3 className="font-bold text-lg">{match.team1?.name}</h3>
                             <Badge variant="outline" className="border-primary/50 text-primary">
-                              Odds: {getOdds(match, match.team1?.id)}x
+                              cote: {getOdds(match, match.team1?.id)}x
                             </Badge>
                           </div>
                         </div>
                         <div className="flex space-x-2">
                           <Input
                             type="number"
-                            placeholder="Amount"
+                            placeholder="Montant"
                             value={betAmounts[`${match.id}-${match.team1?.id}`] || ""}
                             onChange={(e) =>
                               setBetAmounts({
@@ -209,7 +209,7 @@ export default function Matches() {
                             onClick={() => placeBet(match.id, match.team1?.id, getOdds(match, match.team1?.id))}
                             className="bg-primary hover:bg-primary/90 whitespace-nowrap"
                           >
-                            Bet Now
+                            Pariez maintenant
                           </Button>
                         </div>
                       </div>
@@ -223,14 +223,14 @@ export default function Matches() {
                           <div>
                             <h3 className="font-bold text-lg">{match.team2?.name}</h3>
                             <Badge variant="outline" className="border-accent/50 text-accent">
-                              Odds: {getOdds(match, match.team2?.id)}x
+                              cote: {getOdds(match, match.team2?.id)}x
                             </Badge>
                           </div>
                         </div>
                         <div className="flex space-x-2">
                           <Input
                             type="number"
-                            placeholder="Amount"
+                            placeholder="Montant"
                             value={betAmounts[`${match.id}-${match.team2?.id}`] || ""}
                             onChange={(e) =>
                               setBetAmounts({
@@ -244,7 +244,7 @@ export default function Matches() {
                             onClick={() => placeBet(match.id, match.team2?.id, getOdds(match, match.team2?.id))}
                             className="bg-accent hover:bg-accent/90 whitespace-nowrap"
                           >
-                            Bet Now
+                            Pariez maintenant
                           </Button>
                         </div>
                       </div>

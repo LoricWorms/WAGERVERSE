@@ -86,14 +86,14 @@ export const Navbar = () => {
                   </Button>
                 )}
                 <Button variant="outline" asChild className="border-primary/50 hover:bg-primary/10">
-                  <Link to="/matches">Matches</Link>
+                  <Link to="/matches">Matchs</Link>
                 </Button>
                 <Button variant="outline" asChild className="border-secondary/50 hover:bg-secondary/10">
                   <Link to="/dashboard">Dashboard</Link>
                 </Button>
                 <div className="flex items-center space-x-2 px-4 py-2 bg-muted rounded-lg border border-border">
                   <Wallet className="h-4 w-4 text-success" />
-                  <span className="font-mono text-success">${balance.toFixed(2)}</span>
+                  <span className="font-mono text-success">{balance.toFixed(2)}€</span>
                 </div>
                 <Button variant="ghost" size="icon" onClick={handleLogout} className="hover:bg-destructive/10 hover:text-destructive">
                   <LogOut className="h-4 w-4" />

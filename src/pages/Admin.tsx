@@ -199,7 +199,7 @@ export default function Admin() {
       <div className="min-h-screen bg-background">
         <Navbar />
         <div className="container mx-auto px-4 py-12 text-center">
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">Chargement...</p>
         </div>
       </div>
     );
@@ -213,14 +213,14 @@ export default function Admin() {
         <div className="max-w-6xl mx-auto">
           <h1 className="text-4xl font-bold mb-8">
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Admin Dashboard
+              Dashboard Admin
             </span>
           </h1>
 
           <Tabs defaultValue="teams" className="space-y-6">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="teams">Teams Management</TabsTrigger>
-              <TabsTrigger value="matches">Matches Management</TabsTrigger>
+              <TabsTrigger value="teams">Gestion des équipes</TabsTrigger>
+              <TabsTrigger value="matches">Gestion des Matches</TabsTrigger>
             </TabsList>
 
             <TabsContent value="teams" className="space-y-6">
@@ -229,14 +229,14 @@ export default function Admin() {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Plus className="mr-2 h-5 w-5" />
-                    Create New Team
+                    Créer une nouvelle équipe
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleCreateTeam} className="space-y-4">
                     <div className="grid md:grid-cols-3 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="name">Team Name</Label>
+                        <Label htmlFor="name">Nom de l'équipe</Label>
                         <Input
                           id="name"
                           value={teamForm.name}
@@ -256,7 +256,7 @@ export default function Admin() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="founded_year">Founded Year</Label>
+                        <Label htmlFor="founded_year">Année de fondation</Label>
                         <Input
                           id="founded_year"
                           type="number"
@@ -270,7 +270,7 @@ export default function Admin() {
                       </div>
                     </div>
                     <Button type="submit" className="bg-primary hover:bg-primary/90">
-                      Create Team
+                      Créer l'équipe
                     </Button>
                   </form>
                 </CardContent>
@@ -279,7 +279,7 @@ export default function Admin() {
               {/* Teams List */}
               <Card className="border-border">
                 <CardHeader>
-                  <CardTitle>All Teams ({teams.length})</CardTitle>
+                  <CardTitle>Toutes les équipes ({teams.length})</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
@@ -289,13 +289,23 @@ export default function Admin() {
                         className="flex items-center justify-between p-4 rounded-lg bg-muted border border-border"
                       >
                         <div className="flex items-center space-x-3">
-                          <div className="h-10 w-10 rounded-lg bg-card flex items-center justify-center text-lg font-bold">
-                            {team.tag}
-                          </div>
+                          <div className="h-10 w-10 rounded-lg bg-card flex items-center justify-center overflow-hidden">
+                          {team.logo_url ? (
+                          <img
+                            src={team.logo_url}
+                            alt={`${team.name} logo`}
+                            className="h-full w-full object-contain"
+                          />
+                        ) : (
+                        <span className="text-lg font-bold">
+                          {team.tag?.[0] ?? "?"}
+                        </span>
+                        )}
+                        </div>
                           <div>
-                            <div className="font-semibold">{team.name}</div>
+                            <div className="font-semibold">{team.name} "{team.tag}" </div>
                             <div className="text-sm text-muted-foreground">
-                              Founded: {team.founded_year}
+                              Fondée en: {team.founded_year}
                             </div>
                           </div>
                         </div>
@@ -320,14 +330,14 @@ export default function Admin() {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Plus className="mr-2 h-5 w-5" />
-                    Create New Match
+                    Créer un nouveau match
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleCreateMatch} className="space-y-4">
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="team1">Team 1</Label>
+                        <Label htmlFor="team1">Equipe 1</Label>
                         <select
                           id="team1"
                           value={matchForm.team1_id}
@@ -335,7 +345,7 @@ export default function Admin() {
                           required
                           className="w-full p-2 rounded-lg bg-muted border border-border"
                         >
-                          <option value="">Select Team 1</option>
+                          <option value="">Sélectionnez l'équipe 1</option>
                           {teams.map((team) => (
                             <option key={team.id} value={team.id}>
                               {team.name}
@@ -344,7 +354,7 @@ export default function Admin() {
                         </select>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="team2">Team 2</Label>
+                        <Label htmlFor="team2">Equipe 2</Label>
                         <select
                           id="team2"
                           value={matchForm.team2_id}
@@ -352,7 +362,7 @@ export default function Admin() {
                           required
                           className="w-full p-2 rounded-lg bg-muted border border-border"
                         >
-                          <option value="">Select Team 2</option>
+                          <option value="">Sélectionnez l'équipe 1</option>
                           {teams.map((team) => (
                             <option key={team.id} value={team.id}>
                               {team.name}
@@ -363,7 +373,7 @@ export default function Admin() {
                     </div>
                     <div className="grid md:grid-cols-3 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="game">Game</Label>
+                        <Label htmlFor="game">jeu</Label>
                         <select
                           id="game"
                           value={matchForm.game_id}
@@ -371,7 +381,7 @@ export default function Admin() {
                           required
                           className="w-full p-2 rounded-lg bg-muted border border-border"
                         >
-                          <option value="">Select Game</option>
+                          <option value="">Sélectionnez le jeu</option>
                           {games.map((game) => (
                             <option key={game.id} value={game.id}>
                               {game.name}
@@ -380,7 +390,7 @@ export default function Admin() {
                         </select>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="match_date">Match Date</Label>
+                        <Label htmlFor="match_date">Date du match</Label>
                         <Input
                           id="match_date"
                           type="datetime-local"
@@ -402,7 +412,7 @@ export default function Admin() {
                       </div>
                     </div>
                     <Button type="submit" className="bg-primary hover:bg-primary/90">
-                      Create Match
+                      Créer le match
                     </Button>
                   </form>
                 </CardContent>
@@ -411,7 +421,7 @@ export default function Admin() {
               {/* Matches List */}
               <Card className="border-border">
                 <CardHeader>
-                  <CardTitle>All Matches ({matches.length})</CardTitle>
+                  <CardTitle>Tous les matches ({matches.length})</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">

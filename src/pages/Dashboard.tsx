@@ -127,7 +127,7 @@ export default function Dashboard() {
                 Dashboard
               </span>
             </h1>
-            <p className="text-muted-foreground">Track your betting performance</p>
+            <p className="text-muted-foreground">Suivez vos performances de paris</p>
           </div>
 
           {/* Stats Cards */}
@@ -136,7 +136,7 @@ export default function Dashboard() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm text-muted-foreground flex items-center">
                   <Wallet className="h-4 w-4 mr-2" />
-                  Balance
+                  Solde
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -148,11 +148,11 @@ export default function Dashboard() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm text-muted-foreground flex items-center">
                   <TrendingDown className="h-4 w-4 mr-2" />
-                  Total Bet
+                  Pari total
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-warning">${stats.totalBet.toFixed(2)}</div>
+                <div className="text-2xl font-bold text-warning">{stats.totalBet.toFixed(2)}€</div>
               </CardContent>
             </Card>
 
@@ -160,11 +160,11 @@ export default function Dashboard() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm text-muted-foreground flex items-center">
                   <TrendingUp className="h-4 w-4 mr-2" />
-                  Total Won
+                  Total gagné
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-success">${stats.totalWon.toFixed(2)}</div>
+                <div className="text-2xl font-bold text-success">{stats.totalWon.toFixed(2)}€</div>
               </CardContent>
             </Card>
 
@@ -172,12 +172,12 @@ export default function Dashboard() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm text-muted-foreground flex items-center">
                   <Trophy className="h-4 w-4 mr-2" />
-                  Profit/Loss
+                  Bénéfice/Perte
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className={`text-2xl font-bold ${isProfitable ? 'text-success' : 'text-destructive'}`}>
-                  {isProfitable ? '+' : ''}${profitLoss.toFixed(2)}
+                  {isProfitable ? '+' : ''}{profitLoss.toFixed(2)}€
                 </div>
               </CardContent>
             </Card>
@@ -186,11 +186,11 @@ export default function Dashboard() {
           {/* Bets History */}
           <Card className="border-border">
             <CardHeader>
-              <CardTitle>Betting History</CardTitle>
+              <CardTitle>Historique des paris</CardTitle>
             </CardHeader>
             <CardContent>
               {bets.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">No bets placed yet</p>
+                <p className="text-center text-muted-foreground py-8">Aucun pari placé pour le moment</p>
               ) : (
                 <div className="space-y-4">
                   {bets.map((bet) => (
@@ -204,13 +204,13 @@ export default function Dashboard() {
                           {bet.match?.team1?.name} vs {bet.match?.team2?.name}
                         </p>
                         <p className="text-sm">
-                          Bet on <span className="text-primary font-semibold">{bet.team?.name}</span>
+                          Parié sur <span className="text-primary font-semibold">{bet.team?.name}</span>
                         </p>
                       </div>
                       <div className="text-right">
-                        <div className="font-mono font-bold">${bet.amount.toFixed(2)}</div>
-                        <div className="text-sm text-muted-foreground">Odds: {bet.odds}x</div>
-                        <div className="text-sm text-accent">Win: ${bet.potential_win.toFixed(2)}</div>
+                        <div className="font-mono font-bold">{bet.amount.toFixed(2)}€</div>
+                        <div className="text-sm text-muted-foreground">Cote: {bet.odds}x</div>
+                        <div className="text-sm text-accent">Gagné: {bet.potential_win.toFixed(2)}€</div>
                       </div>
                     </div>
                   ))}
