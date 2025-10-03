@@ -182,11 +182,20 @@ export default function Matches() {
                       {/* Team 1 */}
                       <div className="space-y-4 p-4 rounded-lg bg-card border border-border">
                         <div className="flex items-center space-x-3">
-                          <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center text-xl font-bold">
-                            {match.team1?.tag || match.team1?.name?.substring(0, 2)}
-                          </div>
+                          <div className="h-10 w-10 rounded-lg bg-card flex items-center justify-center overflow-hidden">
+                          {match.team1.logo_url ? (
+                          <img
+                            src={match.team1.logo_url}
+                            className="h-full w-full object-contain"
+                          />
+                        ) : (
+                        <span className="text-lg font-bold">
+                          {match.team1.tag?.[0] ?? "?"}
+                        </span>
+                        )}
+                        </div>
                           <div>
-                            <h3 className="font-bold text-lg">{match.team1?.name}</h3>
+                            <h3 className="font-bold text-lg">{match.team1?.name} "{match.team1?.tag}"</h3>
                             <Badge variant="outline" className="border-primary/50 text-primary">
                               cote: {getOdds(match, match.team1?.id)}x
                             </Badge>
@@ -217,11 +226,20 @@ export default function Matches() {
                       {/* Team 2 */}
                       <div className="space-y-4 p-4 rounded-lg bg-card border border-border">
                         <div className="flex items-center space-x-3">
-                          <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center text-xl font-bold">
-                            {match.team2?.tag || match.team2?.name?.substring(0, 2)}
-                          </div>
+                          <div className="h-10 w-10 rounded-lg bg-card flex items-center justify-center overflow-hidden">
+                          {match.team2.logo_url ? (
+                          <img
+                            src={match.team2.logo_url}
+                            className="h-full w-full object-contain"
+                          />
+                        ) : (
+                        <span className="text-lg font-bold">
+                          {match.team2.tag?.[0] ?? "?"}
+                        </span>
+                        )}
+                        </div>
                           <div>
-                            <h3 className="font-bold text-lg">{match.team2?.name}</h3>
+                            <h3 className="font-bold text-lg">{match.team2?.name} "{match.team2?.tag}"</h3>
                             <Badge variant="outline" className="border-accent/50 text-accent">
                               cote: {getOdds(match, match.team2?.id)}x
                             </Badge>
