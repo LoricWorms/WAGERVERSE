@@ -34,10 +34,7 @@ const Index = () => {
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" asChild className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-lg px-8">
-                <Link to="/auth">Commencez à parier</Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild className="border-primary/50 hover:bg-primary/10 text-lg px-8">
-                <Link to="/matches">Voir les matchs en direct</Link>
+                <Link to="/matches">Commencez à parier</Link>
               </Button>
             </div>
             
