@@ -1,110 +1,87 @@
-WAGERVERSE
+# WAGERVERSE
 
-WAGERVERSE est une plateforme moderne et full-stack de paris e-sportifs. Elle offre une expérience fluide aux utilisateurs pour parier sur leurs équipes favorites à travers différents tournois d’e-sport.
-L’application propose des cotes en temps réel, une authentification sécurisée, un tableau de bord personnalisé et un panneau d’administration complet pour la gestion de la plateforme.
+WAGERVERSE is a modern, full-stack e-sports betting platform. It provides a seamless experience for users to bet on their favorite teams across various e-sport tournaments. The application features real-time odds, a secure user authentication system, a personalized dashboard, and a comprehensive admin panel for platform management.
 
-Fonctionnalités principales
+## Key Features
 
-Authentification utilisateur : Inscription et connexion sécurisées via Supabase Auth. Les nouveaux utilisateurs reçoivent un bonus de bienvenue pour commencer à parier.
+*   **User Authentication:** Secure sign-up and login functionality managed by Supabase Auth. New users receive a welcome bonus to start betting.
+*   **Live Match Listings:** Browse upcoming e-sports matches with details on teams, games, and real-time betting odds.
+*   **Betting System:** Place bets on teams with a specified amount. The system validates user balance before confirming a bet.
+*   **User Dashboard:** A personalized space for users to track their balance, total amount wagered, total winnings, profit/loss, and view their complete betting history.
+*   **Admin Panel:** A role-protected dashboard for administrators to manage the platform's core data, including creating and deleting teams and matches.
+*   **Secure & Scalable Backend:** Built on Supabase, utilizing PostgreSQL with Row Level Security (RLS) policies to ensure data is secure and only accessible by authorized users.
 
-Liste des matchs en direct : Parcourir les matchs d’e-sport à venir avec détails des équipes, jeux et cotes en temps réel.
+## Tech Stack
 
-Système de paris : Placer des paris sur des équipes avec un montant défini. Le système vérifie le solde de l’utilisateur avant validation.
+*   **Frontend:** React, Vite, TypeScript
+*   **Backend & Database:** Supabase (PostgreSQL, Auth, Storage)
+*   **UI Framework:** shadcn/ui
+*   **Styling:** Tailwind CSS
+*   **Routing:** React Router
+*   **Data Fetching & State Management:** TanStack Query
+*   **Form Handling:** React Hook Form with Zod for validation
 
-Tableau de bord utilisateur : Espace personnalisé pour suivre le solde, les mises totales, les gains, le profit/perte et l’historique complet des paris.
+## Database Schema
 
-Panneau administrateur : Tableau de bord protégé par rôle pour gérer les données principales (création et suppression d’équipes et de matchs).
+The application's database is managed through Supabase and the schema is defined in the migration file located at `superbase/migrations/`.
 
-Backend sécurisé et scalable : Basé sur Supabase et PostgreSQL, avec politiques de sécurité par lignes (RLS) garantissant que les données ne sont accessibles qu’aux utilisateurs autorisés.
+Key tables include:
+- `games`: Stores e-sport game titles.
+- `teams`: Contains information about participating teams.
+- `matches`: Details on scheduled and completed matches, including scores.
+- `bets`: Records all user bets, including amount, odds, and status.
+- `profiles`: Extends the `auth.users` table to manage user-specific data like balance and betting statistics.
+- `user_roles`: Manages user roles (e.g., `admin`, `user`) for access control.
 
-Pile technologique
+Row Level Security (RLS) is enabled on all tables to ensure data integrity and security. For instance, users can only view their own bets and profile information, while administrators have broader access for management purposes.
 
-Frontend : React, Vite, TypeScript
+## Getting Started
 
-Backend & Base de données : Supabase (PostgreSQL, Auth, Storage)
+To run WAGERVERSE locally, follow these steps:
 
-UI Framework : shadcn/ui
+### Prerequisites
 
-Styles : Tailwind CSS
+*   Node.js (v18 or later)
+*   npm or a compatible package manager
+*   A Supabase account
 
-Routing : React Router
+### Installation and Setup
 
-Gestion d’état & requêtes : TanStack Query
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/LoricWorms/WAGERVERSE.git
+    cd WAGERVERSE
+    ```
 
-Formulaires : React Hook Form avec validation Zod
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
 
-Schéma de la base de données
+3.  **Set up your Supabase project:**
+    *   Create a new project on [Supabase](https://supabase.com).
+    *   Navigate to the **SQL Editor** in your Supabase project dashboard.
+    *   Copy the content of `superbase/migrations/20251002134752_8cc0eaac-a255-4363-84fc-c56714f3175b.sql` and run it to set up your database schema, roles, and security policies.
 
-La base est gérée via Supabase et son schéma est défini dans les fichiers de migration situés dans superbase/migrations/.
+4.  **Configure environment variables:**
+    *   Create a `.env` file in the root of the project.
+    *   Navigate to **Project Settings > API** in your Supabase dashboard.
+    *   Copy the **Project URL** and the **anon (public) Key** into your `.env` file:
+      ```env
+      VITE_SUPABASE_URL=YOUR_SUPABASE_PROJECT_URL
+      VITE_SUPABASE_PUBLISHABLE_KEY=YOUR_SUPABASE_ANON_KEY
+      ```
 
-Tables principales :
+5.  **Run the development server:**
+    ```bash
+    npm run dev
+    ```
 
-games : titres de jeux e-sport.
-
-teams : informations sur les équipes participantes.
-
-matches : détails des matchs programmés ou terminés (scores inclus).
-
-bets : enregistrements de tous les paris (montant, cote, statut).
-
-profiles : extension de auth.users pour gérer solde et statistiques de paris.
-
-user_roles : gestion des rôles (ex. admin, user) pour le contrôle d’accès.
-
-Toutes les tables ont la Row Level Security (RLS) activée afin de garantir l’intégrité et la sécurité des données.
-Exemple : un utilisateur ne peut voir que ses propres paris et son profil, tandis qu’un administrateur a des droits étendus pour la gestion.
-
-Démarrage rapide
-Prérequis
-
-Node.js (v18 ou plus récent)
-
-npm (ou un gestionnaire de paquets compatible)
-
-Un compte Supabase
-
-Installation et configuration
-
-Cloner le dépôt :
-
-git clone https://github.com/LoricWorms/WAGERVERSE.git
-cd WAGERVERSE
-
-
-Installer les dépendances :
-
-npm install
-
-
-Configurer votre projet Supabase :
-
-Créez un nouveau projet sur Supabase
-.
-
-Dans le SQL Editor de Supabase, copiez le contenu du fichier
-superbase/migrations/20251002134752_8cc0eaac-a255-4363-84fc-c56714f3175b.sql
-puis exécutez-le pour mettre en place schéma, rôles et politiques de sécurité.
-
-Définir les variables d’environnement :
-
-Créez un fichier .env à la racine du projet.
-
-Dans Supabase → Project Settings > API, copiez :
-
-Project URL
-
-Clé publique (anon key)
-
-Ajoutez-les dans le fichier .env :
-
-VITE_SUPABASE_URL=VOTRE_URL_SUPABASE
-VITE_SUPABASE_PUBLISHABLE_KEY=VOTRE_CLE_ANON_SUPABASE
-
-
-Lancer le serveur de développement :
+The application should now be running on `http://localhost:8080`.
 
 npm run dev
 
 
 L’application est accessible à l’adresse :
 👉 http://localhost:8080
+
