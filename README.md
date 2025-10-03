@@ -78,5 +78,3 @@ To run WAGERVERSE locally, follow these steps:
     ```
 
 The application should now be running on `http://localhost:8080`.
-
-npm run dev
