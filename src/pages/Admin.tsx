@@ -79,7 +79,7 @@ export default function Admin() {
       .single();
 
     if (!data) {
-      toast.error("Access denied - Admin only");
+      toast.error("Accès refusé - Admin seulement");
       navigate("/");
     } else {
       setIsAdmin(true);
@@ -130,21 +130,21 @@ export default function Admin() {
       toast.error("Error creating team");
       console.error(error);
     } else {
-      toast.success("Team created successfully");
+      toast.success("Équipe créée avec succès");
       setTeamForm({ name: "", tag: "", founded_year: new Date().getFullYear(),logo_url: ""});
       fetchData();
     }
   };
 
   const handleDeleteTeam = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this team?")) return;
+    if (!confirm("Êtes-vous sûr de vouloir supprimer cette équipe ?")) return;
 
     const { error } = await supabase.from("teams").delete().eq("id", id);
 
     if (error) {
       toast.error("Error deleting team");
     } else {
-      toast.success("Team deleted");
+      toast.success("Équipe supprimée");
       fetchData();
     }
   };
@@ -153,7 +153,7 @@ export default function Admin() {
     e.preventDefault();
 
     if (matchForm.team1_id === matchForm.team2_id) {
-      toast.error("Teams must be different");
+      toast.error("Les équipes doivent être différentes");
       return;
     }
 
