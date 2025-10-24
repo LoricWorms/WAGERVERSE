@@ -109,7 +109,7 @@ const Index = () => {
               Rejoignez des milliers de gagnants sur WAGERVERSE. Recevez un bonus de bienvenue de 50€ dès aujourd'hui.
             </p>
             <Button size="lg" asChild className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-lg px-8">
-              <Link to="/auth">Créer un compte maintenant</Link>
+              <Link to="/auth?mode=signup">Créer un compte maintenant</Link>
             </Button>
           </div>
         </div>

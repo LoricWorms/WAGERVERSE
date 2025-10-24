@@ -47,6 +47,7 @@ export default function Admin() {
     name: "",
     tag: "",
     founded_year: new Date().getFullYear(),
+    logo_url: "",
   });
 
   // Match form
@@ -130,7 +131,7 @@ export default function Admin() {
       console.error(error);
     } else {
       toast.success("Team created successfully");
-      setTeamForm({ name: "", tag: "", founded_year: new Date().getFullYear() });
+      setTeamForm({ name: "", tag: "", founded_year: new Date().getFullYear(),logo_url: ""});
       fetchData();
     }
   };
@@ -226,55 +227,116 @@ export default function Admin() {
             <TabsContent value="teams" className="space-y-6">
               {/* Create Team */}
               <Card className="border-border">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Plus className="mr-2 h-5 w-5" />
-                    Créer une nouvelle équipe
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleCreateTeam} className="space-y-4">
-                    <div className="grid md:grid-cols-3 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="name">Nom de l'équipe</Label>
-                        <Input
-                          id="name"
-                          value={teamForm.name}
-                          onChange={(e) => setTeamForm({ ...teamForm, name: e.target.value })}
-                          required
-                          className="bg-muted border-border"
-                        />
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <Plus className="mr-2 h-5 w-5" />
+                      Créer une nouvelle équipe
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <form
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+
+                        if (!teamForm.logo_url) {
+                          toast.error("Veuillez uploader un logo pour l'équipe");
+                          return;
+                        }
+
+                        const { error } = await supabase.from("teams").insert([teamForm]);
+
+                        if (error) {
+                          toast.error("Erreur lors de la création de l'équipe");
+                          console.error(error);
+                        } else {
+                          toast.success("Équipe créée avec succès !");
+                          setTeamForm({
+                            name: "",
+                            tag: "",
+                            founded_year: new Date().getFullYear(),
+                            logo_url: "",
+                          });
+                          fetchData();
+                        }
+                      }}
+                      className="space-y-4"
+                    >
+                      <div className="grid md:grid-cols-4 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="name">Nom de l'équipe</Label>
+                          <Input
+                            id="name"
+                            value={teamForm.name}
+                            onChange={(e) => setTeamForm({ ...teamForm, name: e.target.value })}
+                            required
+                            className="bg-muted border-border"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="tag">Tag</Label>
+                          <Input
+                            id="tag"
+                            value={teamForm.tag}
+                            onChange={(e) => setTeamForm({ ...teamForm, tag: e.target.value })}
+                            required
+                            className="bg-muted border-border"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="founded_year">Année de fondation</Label>
+                          <Input
+                            id="founded_year"
+                            type="number"
+                            value={teamForm.founded_year}
+                            onChange={(e) =>
+                              setTeamForm({ ...teamForm, founded_year: parseInt(e.target.value) })
+                            }
+                            required
+                            className="bg-muted border-border"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="logo">Logo de l'équipe</Label>
+                          <Input
+                            id="logo"
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+
+                              const fileExt = file.name.split(".").pop();
+                              const fileName = `${teamForm.tag}_${Date.now()}.${fileExt}`;
+                              const filePath = `team-logos/${fileName}`;
+
+                              const { data, error } = await supabase.storage
+                                .from("team-logos") 
+                                .upload(filePath, file);
+
+                              if (error) {
+                                toast.error("Erreur lors de l'upload du logo");
+                                console.error(error);
+                              } else {
+                                const { data: publicUrlData } = supabase.storage
+                                    .from("team-logos")
+                                    .getPublicUrl(filePath);
+
+                                if (publicUrlData) {
+                                    setTeamForm({ ...teamForm, logo_url: publicUrlData.publicUrl });
+                                    toast.success("Logo uploadé avec succès");
+                                }
+                              }
+                            }}
+                          />
+                        </div>
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="tag">Tag</Label>
-                        <Input
-                          id="tag"
-                          value={teamForm.tag}
-                          onChange={(e) => setTeamForm({ ...teamForm, tag: e.target.value })}
-                          required
-                          className="bg-muted border-border"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="founded_year">Année de fondation</Label>
-                        <Input
-                          id="founded_year"
-                          type="number"
-                          value={teamForm.founded_year}
-                          onChange={(e) =>
-                            setTeamForm({ ...teamForm, founded_year: parseInt(e.target.value) })
-                          }
-                          required
-                          className="bg-muted border-border"
-                        />
-                      </div>
-                    </div>
-                    <Button type="submit" className="bg-primary hover:bg-primary/90">
-                      Créer l'équipe
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
+
+                      <Button type="submit" className="bg-primary hover:bg-primary/90">
+                        Créer l'équipe
+                      </Button>
+                    </form>
+                  </CardContent>
+                </Card>
 
               {/* Teams List */}
               <Card className="border-border">
@@ -361,7 +423,7 @@ export default function Admin() {
                           required
                           className="w-full p-2 rounded-lg bg-muted border border-border"
                         >
-                          <option value="">Sélectionnez l'équipe 1</option>
+                          <option value="">Sélectionnez l'équipe 2</option>
                           {teams.map((team) => (
                             <option key={team.id} value={team.id}>
                               {team.name}

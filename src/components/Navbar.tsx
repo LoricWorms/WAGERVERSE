@@ -102,10 +102,10 @@ export const Navbar = () => {
             ) : (
               <>
                 <Button variant="outline" asChild className="border-primary/50 hover:bg-primary/10">
-                  <Link to="/auth">Login</Link>
+                  <Link to="/auth?mode=login">Login</Link>
                 </Button>
                 <Button asChild className="bg-gradient-to-r from-primary to-accent hover:opacity-90">
-                  <Link to="/auth">Sign Up</Link>
+                  <Link to="/auth?mode=signup">Sign Up</Link>
                 </Button>
               </>
             )}
