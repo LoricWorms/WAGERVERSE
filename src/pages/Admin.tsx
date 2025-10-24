@@ -40,6 +40,8 @@ export default function Admin() {
   const [games, setGames] = useState<Game[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [editingTeam, setEditingTeam] = useState<Team | null>(null);
+
   const navigate = useNavigate();
 
   // Team form
@@ -224,121 +226,117 @@ export default function Admin() {
               <TabsTrigger value="matches">Gestion des Matches</TabsTrigger>
             </TabsList>
 
+            {/* Gestion des équipes */}
             <TabsContent value="teams" className="space-y-6">
-              {/* Create Team */}
+              {/* Création d'une nouvelle équipe */}
               <Card className="border-border">
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <Plus className="mr-2 h-5 w-5" />
-                      Créer une nouvelle équipe
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <form
-                      onSubmit={async (e) => {
-                        e.preventDefault();
-
-                        if (!teamForm.logo_url) {
-                          toast.error("Veuillez uploader un logo pour l'équipe");
-                          return;
-                        }
-
-                        const { error } = await supabase.from("teams").insert([teamForm]);
-
-                        if (error) {
-                          toast.error("Erreur lors de la création de l'équipe");
-                          console.error(error);
-                        } else {
-                          toast.success("Équipe créée avec succès !");
-                          setTeamForm({
-                            name: "",
-                            tag: "",
-                            founded_year: new Date().getFullYear(),
-                            logo_url: "",
-                          });
-                          fetchData();
-                        }
-                      }}
-                      className="space-y-4"
-                    >
-                      <div className="grid md:grid-cols-4 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="name">Nom de l'équipe</Label>
-                          <Input
-                            id="name"
-                            value={teamForm.name}
-                            onChange={(e) => setTeamForm({ ...teamForm, name: e.target.value })}
-                            required
-                            className="bg-muted border-border"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="tag">Tag</Label>
-                          <Input
-                            id="tag"
-                            value={teamForm.tag}
-                            onChange={(e) => setTeamForm({ ...teamForm, tag: e.target.value })}
-                            required
-                            className="bg-muted border-border"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="founded_year">Année de fondation</Label>
-                          <Input
-                            id="founded_year"
-                            type="number"
-                            value={teamForm.founded_year}
-                            onChange={(e) =>
-                              setTeamForm({ ...teamForm, founded_year: parseInt(e.target.value) })
-                            }
-                            required
-                            className="bg-muted border-border"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="logo">Logo de l'équipe</Label>
-                          <Input
-                            id="logo"
-                            type="file"
-                            accept="image/*"
-                            onChange={async (e) => {
-                              const file = e.target.files?.[0];
-                              if (!file) return;
-
-                              const fileExt = file.name.split(".").pop();
-                              const fileName = `${teamForm.tag}_${Date.now()}.${fileExt}`;
-                              const filePath = `team-logos/${fileName}`;
-
-                              const { data, error } = await supabase.storage
-                                .from("team-logos") 
-                                .upload(filePath, file);
-
-                              if (error) {
-                                toast.error("Erreur lors de l'upload du logo");
-                                console.error(error);
-                              } else {
-                                const { data: publicUrlData } = supabase.storage
-                                    .from("team-logos")
-                                    .getPublicUrl(filePath);
-
-                                if (publicUrlData) {
-                                    setTeamForm({ ...teamForm, logo_url: publicUrlData.publicUrl });
-                                    toast.success("Logo uploadé avec succès");
-                                }
-                              }
-                            }}
-                          />
-                        </div>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Plus className="mr-2 h-5 w-5" />
+                    Créer une nouvelle équipe
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      if (!teamForm.logo_url) {
+                        toast.error("Veuillez uploader un logo pour l'équipe");
+                        return;
+                      }
+                      const { error } = await supabase.from("teams").insert([teamForm]);
+                      if (error) {
+                        toast.error("Erreur lors de la création de l'équipe");
+                        console.error(error);
+                      } else {
+                        toast.success("Équipe créée avec succès !");
+                        setTeamForm({
+                          name: "",
+                          tag: "",
+                          founded_year: new Date().getFullYear(),
+                          logo_url: "",
+                        });
+                        fetchData();
+                      }
+                    }}
+                    className="space-y-4"
+                  >
+                    <div className="grid md:grid-cols-4 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Nom de l'équipe</Label>
+                        <Input
+                          id="name"
+                          value={teamForm.name}
+                          onChange={(e) => setTeamForm({ ...teamForm, name: e.target.value })}
+                          required
+                          className="bg-muted border-border"
+                        />
                       </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="tag">Tag</Label>
+                        <Input
+                          id="tag"
+                          value={teamForm.tag}
+                          onChange={(e) => setTeamForm({ ...teamForm, tag: e.target.value })}
+                          required
+                          className="bg-muted border-border"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="founded_year">Année de fondation</Label>
+                        <Input
+                          id="founded_year"
+                          type="number"
+                          value={teamForm.founded_year}
+                          onChange={(e) =>
+                            setTeamForm({ ...teamForm, founded_year: parseInt(e.target.value) })
+                          }
+                          required
+                          className="bg-muted border-border"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="logo">Logo de l'équipe</Label>
+                        <Input
+                          id="logo"
+                          type="file"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
 
-                      <Button type="submit" className="bg-primary hover:bg-primary/90">
-                        Créer l'équipe
-                      </Button>
-                    </form>
-                  </CardContent>
-                </Card>
+                            const fileExt = file.name.split(".").pop();
+                            const fileName = `${teamForm.tag}_${Date.now()}.${fileExt}`;
+                            const filePath = `team-logos/${fileName}`;
 
-              {/* Teams List */}
+                            const { error } = await supabase.storage
+                              .from("team-logos")
+                              .upload(filePath, file);
+
+                            if (error) {
+                              toast.error("Erreur lors de l'upload du logo");
+                            } else {
+                              const { data: publicUrlData } = supabase.storage
+                                .from("team-logos")
+                                .getPublicUrl(filePath);
+
+                              if (publicUrlData) {
+                                setTeamForm({ ...teamForm, logo_url: publicUrlData.publicUrl });
+                                toast.success("Logo uploadé avec succès");
+                              }
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <Button type="submit" className="bg-primary hover:bg-primary/90">
+                      Créer l'équipe
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+
+              {/* Liste et édition des équipes */}
               <Card className="border-border">
                 <CardHeader>
                   <CardTitle>Toutes les équipes ({teams.length})</CardTitle>
@@ -352,37 +350,141 @@ export default function Admin() {
                       >
                         <div className="flex items-center space-x-3">
                           <div className="h-10 w-10 rounded-lg bg-card flex items-center justify-center overflow-hidden">
-                          {team.logo_url ? (
-                          <img
-                            src={team.logo_url}
-                            className="h-full w-full object-contain"
-                          />
-                        ) : (
-                        <span className="text-lg font-bold">
-                          {team.tag?.[0] ?? "?"}
-                        </span>
-                        )}
-                        </div>
+                            {team.logo_url ? (
+                              <img src={team.logo_url} className="h-full w-full object-contain" />
+                            ) : (
+                              <span className="text-lg font-bold">{team.tag?.[0] ?? "?"}</span>
+                            )}
+                          </div>
                           <div>
-                            <div className="font-semibold">{team.name} "{team.tag}" </div>
+                            <div className="font-semibold">{team.name} "{team.tag}"</div>
                             <div className="text-sm text-muted-foreground">
                               Fondée en: {team.founded_year}
                             </div>
                           </div>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDeleteTeam(team.id)}
-                          className="hover:bg-destructive/10 hover:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setEditingTeam(team)}
+                            className="hover:bg-secondary/10 hover:text-primary"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeleteTeam(team.id)}
+                            className="hover:bg-destructive/10 hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Formulaire de modification */}
+              {editingTeam && (
+                <Card className="mt-4 border-border">
+                  <CardHeader>
+                    <CardTitle>Modifier l'équipe: {editingTeam.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <form
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        const { error } = await supabase
+                          .from("teams")
+                          .update(editingTeam)
+                          .eq("id", editingTeam.id);
+
+                        if (error) {
+                          toast.error("Erreur lors de la mise à jour de l'équipe");
+                          console.error(error);
+                        } else {
+                          toast.success("Équipe mise à jour avec succès !");
+                          setEditingTeam(null);
+                          fetchData();
+                        }
+                      }}
+                      className="space-y-4"
+                    >
+                      <div className="grid md:grid-cols-4 gap-4">
+                        <Input
+                          placeholder="Nom"
+                          value={editingTeam.name}
+                          onChange={(e) =>
+                            setEditingTeam({ ...editingTeam, name: e.target.value })
+                          }
+                          required
+                        />
+                        <Input
+                          placeholder="Tag"
+                          value={editingTeam.tag}
+                          onChange={(e) =>
+                            setEditingTeam({ ...editingTeam, tag: e.target.value })
+                          }
+                          required
+                        />
+                        <Input
+                          type="number"
+                          placeholder="Année de fondation"
+                          value={editingTeam.founded_year}
+                          onChange={(e) =>
+                            setEditingTeam({ ...editingTeam, founded_year: parseInt(e.target.value) })
+                          }
+                          required
+                        />
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+
+                            const fileExt = file.name.split(".").pop();
+                            const fileName = `${editingTeam.tag}_${Date.now()}.${fileExt}`;
+                            const filePath = `team-logos/${fileName}`;
+
+                            const { error } = await supabase.storage
+                              .from("team-logos")
+                              .upload(filePath, file);
+
+                            if (error) {
+                              toast.error("Erreur lors de l'upload du logo");
+                            } else {
+                              const { data: publicUrlData } = supabase.storage
+                                .from("team-logos")
+                                .getPublicUrl(filePath);
+
+                              if (publicUrlData) {
+                                setEditingTeam({ ...editingTeam, logo_url: publicUrlData.publicUrl });
+                                toast.success("Logo uploadé avec succès");
+                              }
+                            }
+                          }}
+                        />
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button type="submit" className="bg-primary hover:bg-primary/90">
+                          Enregistrer
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={() => setEditingTeam(null)}
+                        >
+                          Annuler
+                        </Button>
+                      </div>
+                    </form>
+                  </CardContent>
+                </Card>
+              )}
             </TabsContent>
 
             <TabsContent value="matches" className="space-y-6">
