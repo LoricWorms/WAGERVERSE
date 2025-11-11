@@ -591,3 +591,29 @@ export const Constants = {
     },
   },
 } as const
+
+// Custom application types
+export interface Team {
+  id: string;
+  name: string;
+  tag: string;
+  founded_year: number;
+  total_earning: number;
+  logo_url: string;
+}
+
+export interface Match {
+  id: string;
+  match_date: string;
+  status: string;
+  format: string;
+  team1: { id: string; name: string };
+  team2: { id: string; name: string };
+  game: { id: string; name: string };
+}
+
+export interface Game {
+  id: string;
+  name: string;
+  category: string;
+}

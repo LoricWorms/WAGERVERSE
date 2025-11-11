@@ -9,31 +9,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Trash2, Edit, Plus } from "lucide-react";
-
-interface Team {
-  id: string;
-  name: string;
-  tag: string;
-  founded_year: number;
-  total_earning: number;
-  logo_url: string;
-}
-
-interface Match {
-  id: string;
-  match_date: string;
-  status: string;
-  format: string;
-  team1: { id: string; name: string };
-  team2: { id: string; name: string };
-  game: { id: string; name: string };
-}
-
-interface Game {
-  id: string;
-  name: string;
-  category: string;
-}
+import { Team, Match, Game } from "@/integrations/superbase/types";
+import { EditTeamForm } from "@/components/admin/EditTeamForm";
+import { EditMatchForm } from "@/components/admin/EditMatchForm";
 
 export default function Admin() {
   const [teams, setTeams] = useState<Team[]>([]);
@@ -392,101 +370,14 @@ export default function Admin() {
 
               {/* Formulaire de modification */}
               {editingTeam && (
-                <Card className="mt-4 border-border">
-                  <CardHeader>
-                    <CardTitle>Modifier l'équipe: {editingTeam.name}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <form
-                      onSubmit={async (e) => {
-                        e.preventDefault();
-                        const { error } = await supabase
-                          .from("teams")
-                          .update(editingTeam)
-                          .eq("id", editingTeam.id);
-
-                        if (error) {
-                          toast.error("Erreur lors de la mise à jour de l'équipe");
-                          console.error(error);
-                        } else {
-                          toast.success("Équipe mise à jour avec succès !");
-                          setEditingTeam(null);
-                          fetchData();
-                        }
-                      }}
-                      className="space-y-4"
-                    >
-                      <div className="grid md:grid-cols-4 gap-4">
-                        <Input
-                          placeholder="Nom"
-                          value={editingTeam.name}
-                          onChange={(e) =>
-                            setEditingTeam({ ...editingTeam, name: e.target.value })
-                          }
-                          required
-                        />
-                        <Input
-                          placeholder="Tag"
-                          value={editingTeam.tag}
-                          onChange={(e) =>
-                            setEditingTeam({ ...editingTeam, tag: e.target.value })
-                          }
-                          required
-                        />
-                        <Input
-                          type="number"
-                          placeholder="Année de fondation"
-                          value={editingTeam.founded_year}
-                          onChange={(e) =>
-                            setEditingTeam({ ...editingTeam, founded_year: parseInt(e.target.value) })
-                          }
-                          required
-                        />
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={async (e) => {
-                            const file = e.target.files?.[0];
-                            if (!file) return;
-
-                            const fileExt = file.name.split(".").pop();
-                            const fileName = `${editingTeam.tag}_${Date.now()}.${fileExt}`;
-                            const filePath = `team-logos/${fileName}`;
-
-                            const { error } = await supabase.storage
-                              .from("team-logos")
-                              .upload(filePath, file);
-
-                            if (error) {
-                              toast.error("Erreur lors de l'upload du logo");
-                            } else {
-                              const { data: publicUrlData } = supabase.storage
-                                .from("team-logos")
-                                .getPublicUrl(filePath);
-
-                              if (publicUrlData) {
-                                setEditingTeam({ ...editingTeam, logo_url: publicUrlData.publicUrl });
-                                toast.success("Logo uploadé avec succès");
-                              }
-                            }
-                          }}
-                        />
-                      </div>
-                      <div className="flex space-x-2">
-                        <Button type="submit" className="bg-primary hover:bg-primary/90">
-                          Enregistrer
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          onClick={() => setEditingTeam(null)}
-                        >
-                          Annuler
-                        </Button>
-                      </div>
-                    </form>
-                  </CardContent>
-                </Card>
+                <EditTeamForm
+                  team={editingTeam}
+                  onSave={() => {
+                    setEditingTeam(null);
+                    fetchData();
+                  }}
+                  onCancel={() => setEditingTeam(null)}
+                />
               )}
             </TabsContent>
 
@@ -631,183 +522,16 @@ export default function Admin() {
 
               {/* Formulaire de modification de match */}
               {editingMatch && (
-                <Card className="mt-4 border-border">
-                  <CardHeader>
-                    <CardTitle>Modifier le match</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <form
-                      onSubmit={async (e) => {
-                        e.preventDefault();
-                        if (!editingMatch.team1 || !editingMatch.team2 || !editingMatch.game) {
-                          toast.error("Veuillez remplir tous les champs");
-                          return;
-                        }
-                                                const { error } = await supabase
-                                                  .from("matches")
-                                                  .update({
-                                                    team1_id: editingMatch.team1.id,
-                                                    team2_id: editingMatch.team2.id,
-                                                    game_id: editingMatch.game.id,
-                                                    match_date: editingMatch.match_date,
-                                                    status: editingMatch.status,
-                                                    format: editingMatch.format,
-                                                  })
-                                                  .eq("id", editingMatch.id);
-                        if (error) {
-                          toast.error("Erreur lors de la mise à jour du match");
-                          console.error(error);
-                        } else {
-                          toast.success("Match mis à jour avec succès !");
-                          setEditingMatch(null);
-                          fetchData();
-                        }
-                      }}
-                      className="space-y-4"
-                    >
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="edit-team1">Equipe 1</Label>
-                          <select
-                            id="edit-team1"
-                            value={editingMatch.team1?.id || ""}
-                            onChange={(e) =>
-                              setEditingMatch(
-                                editingMatch
-                                  ? {
-                                      ...editingMatch,
-                                      team1: { ...editingMatch.team1, id: e.target.value },
-                                    }
-                                  : null
-                              )
-                            }
-                            required
-                            className="w-full p-2 rounded-lg bg-muted border border-border"
-                          >
-                            {teams.map((team) => (
-                              <option key={team.id} value={team.id}>
-                                {team.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="edit-team2">Equipe 2</Label>
-                          <select
-                            id="edit-team2"
-                            value={editingMatch.team2?.id || ""}
-                            onChange={(e) =>
-                              setEditingMatch(
-                                editingMatch
-                                  ? {
-                                      ...editingMatch,
-                                      team2: { ...editingMatch.team2, id: e.target.value },
-                                    }
-                                  : null
-                              )
-                            }
-                            required
-                            className="w-full p-2 rounded-lg bg-muted border border-border"
-                          >
-                            {teams.map((team) => (
-                              <option key={team.id} value={team.id}>
-                                {team.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-                      <div className="grid md:grid-cols-3 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="edit-game">Jeu</Label>
-                          <select
-                            id="edit-game"
-                            value={editingMatch.game?.id || ""}
-                            onChange={(e) =>
-                              setEditingMatch(
-                                editingMatch
-                                  ? {
-                                      ...editingMatch,
-                                      game: { ...editingMatch.game, id: e.target.value },
-                                    }
-                                  : null
-                              )
-                            }
-                            required
-                            className="w-full p-2 rounded-lg bg-muted border border-border"
-                          >
-                            {games.map((game) => (
-                              <option key={game.id} value={game.id}>
-                                {game.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="edit-match_date">Date du match</Label>
-                          <Input
-                            id="edit-match_date"
-                            type="datetime-local"
-                            value={editingMatch.match_date.substring(0, 16)} // Formatage de la date
-                            onChange={(e) =>
-                              setEditingMatch(
-                                editingMatch
-                                  ? { ...editingMatch, match_date: e.target.value }
-                                  : null
-                              )
-                            }
-                            required
-                            className="bg-muted border-border"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="edit-status">Statut</Label>
-                          <select
-                            id="edit-status"
-                            value={editingMatch.status}
-                                                        onChange={(e) => {                                                            
-                                                          setEditingMatch(                                                            
-                                                            editingMatch ? { ...editingMatch, status: e.target.value } : null         
-                                                          );                                                                          
-                                                        }}                            required
-                            className="w-full p-2 rounded-lg bg-muted border border-border"
-                          >
-                            <option value="programmé">Programmé</option>
-                            <option value="en cours">En cours</option>
-                            <option value="terminé">Terminé</option>
-                            <option value="annulé">Annulé</option>
-                          </select>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="edit-format">Format</Label>
-                          <Input
-                            id="edit-format"
-                            value={editingMatch.format}
-                            onChange={(e) =>
-                              setEditingMatch(
-                                editingMatch ? { ...editingMatch, format: e.target.value } : null
-                              )
-                            }
-                            placeholder="BO3"
-                            className="bg-muted border-border"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex space-x-2">
-                        <Button type="submit" className="bg-primary hover:bg-primary/90">
-                          Enregistrer
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          onClick={() => setEditingMatch(null)}
-                        >
-                          Annuler
-                        </Button>
-                      </div>
-                    </form>
-                  </CardContent>
-                </Card>
+                <EditMatchForm
+                  match={editingMatch}
+                  teams={teams}
+                  games={games}
+                  onSave={() => {
+                    setEditingMatch(null);
+                    fetchData();
+                  }}
+                  onCancel={() => setEditingMatch(null)}
+                />
               )}
             </TabsContent>
           </Tabs>
