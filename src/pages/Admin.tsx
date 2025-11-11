@@ -23,9 +23,10 @@ interface Match {
   id: string;
   match_date: string;
   status: string;
-  team1: { name: string };
-  team2: { name: string };
-  game: { name: string };
+  format: string;
+  team1: { id: string; name: string };
+  team2: { id: string; name: string };
+  game: { id: string; name: string };
 }
 
 interface Game {
@@ -41,6 +42,7 @@ export default function Admin() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [editingTeam, setEditingTeam] = useState<Team | null>(null);
+  const [editingMatch, setEditingMatch] = useState<Match | null>(null);
 
   const navigate = useNavigate();
 
@@ -106,9 +108,10 @@ export default function Admin() {
         id,
         match_date,
         status,
-        team1:teams!matches_team1_id_fkey(name),
-        team2:teams!matches_team2_id_fkey(name),
-        game:games(name)
+        format,
+        team1:teams!matches_team1_id_fkey(id, name),
+        team2:teams!matches_team2_id_fkey(id, name),
+        game:games(id, name)
       `)
       .order("match_date", { ascending: false });
     setMatches(matchesData || []);
@@ -602,19 +605,210 @@ export default function Admin() {
                             {new Date(match.match_date).toLocaleString()} • {match.status}
                           </div>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDeleteMatch(match.id)}
-                          className="hover:bg-destructive/10 hover:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setEditingMatch(match)}
+                            className="hover:bg-secondary/10 hover:text-primary"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeleteMatch(match.id)}
+                            className="hover:bg-destructive/10 hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Formulaire de modification de match */}
+              {editingMatch && (
+                <Card className="mt-4 border-border">
+                  <CardHeader>
+                    <CardTitle>Modifier le match</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <form
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        if (!editingMatch.team1 || !editingMatch.team2 || !editingMatch.game) {
+                          toast.error("Veuillez remplir tous les champs");
+                          return;
+                        }
+                                                const { error } = await supabase
+                                                  .from("matches")
+                                                  .update({
+                                                    team1_id: editingMatch.team1.id,
+                                                    team2_id: editingMatch.team2.id,
+                                                    game_id: editingMatch.game.id,
+                                                    match_date: editingMatch.match_date,
+                                                    status: editingMatch.status,
+                                                    format: editingMatch.format,
+                                                  })
+                                                  .eq("id", editingMatch.id);
+                        if (error) {
+                          toast.error("Erreur lors de la mise à jour du match");
+                          console.error(error);
+                        } else {
+                          toast.success("Match mis à jour avec succès !");
+                          setEditingMatch(null);
+                          fetchData();
+                        }
+                      }}
+                      className="space-y-4"
+                    >
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-team1">Equipe 1</Label>
+                          <select
+                            id="edit-team1"
+                            value={editingMatch.team1?.id || ""}
+                            onChange={(e) =>
+                              setEditingMatch(
+                                editingMatch
+                                  ? {
+                                      ...editingMatch,
+                                      team1: { ...editingMatch.team1, id: e.target.value },
+                                    }
+                                  : null
+                              )
+                            }
+                            required
+                            className="w-full p-2 rounded-lg bg-muted border border-border"
+                          >
+                            {teams.map((team) => (
+                              <option key={team.id} value={team.id}>
+                                {team.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-team2">Equipe 2</Label>
+                          <select
+                            id="edit-team2"
+                            value={editingMatch.team2?.id || ""}
+                            onChange={(e) =>
+                              setEditingMatch(
+                                editingMatch
+                                  ? {
+                                      ...editingMatch,
+                                      team2: { ...editingMatch.team2, id: e.target.value },
+                                    }
+                                  : null
+                              )
+                            }
+                            required
+                            className="w-full p-2 rounded-lg bg-muted border border-border"
+                          >
+                            {teams.map((team) => (
+                              <option key={team.id} value={team.id}>
+                                {team.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                      <div className="grid md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-game">Jeu</Label>
+                          <select
+                            id="edit-game"
+                            value={editingMatch.game?.id || ""}
+                            onChange={(e) =>
+                              setEditingMatch(
+                                editingMatch
+                                  ? {
+                                      ...editingMatch,
+                                      game: { ...editingMatch.game, id: e.target.value },
+                                    }
+                                  : null
+                              )
+                            }
+                            required
+                            className="w-full p-2 rounded-lg bg-muted border border-border"
+                          >
+                            {games.map((game) => (
+                              <option key={game.id} value={game.id}>
+                                {game.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-match_date">Date du match</Label>
+                          <Input
+                            id="edit-match_date"
+                            type="datetime-local"
+                            value={editingMatch.match_date.substring(0, 16)} // Formatage de la date
+                            onChange={(e) =>
+                              setEditingMatch(
+                                editingMatch
+                                  ? { ...editingMatch, match_date: e.target.value }
+                                  : null
+                              )
+                            }
+                            required
+                            className="bg-muted border-border"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-status">Statut</Label>
+                          <select
+                            id="edit-status"
+                            value={editingMatch.status}
+                                                        onChange={(e) => {                                                            
+                                                          setEditingMatch(                                                            
+                                                            editingMatch ? { ...editingMatch, status: e.target.value } : null         
+                                                          );                                                                          
+                                                        }}                            required
+                            className="w-full p-2 rounded-lg bg-muted border border-border"
+                          >
+                            <option value="programmé">Programmé</option>
+                            <option value="en cours">En cours</option>
+                            <option value="terminé">Terminé</option>
+                            <option value="annulé">Annulé</option>
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-format">Format</Label>
+                          <Input
+                            id="edit-format"
+                            value={editingMatch.format}
+                            onChange={(e) =>
+                              setEditingMatch(
+                                editingMatch ? { ...editingMatch, format: e.target.value } : null
+                              )
+                            }
+                            placeholder="BO3"
+                            className="bg-muted border-border"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button type="submit" className="bg-primary hover:bg-primary/90">
+                          Enregistrer
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={() => setEditingMatch(null)}
+                        >
+                          Annuler
+                        </Button>
+                      </div>
+                    </form>
+                  </CardContent>
+                </Card>
+              )}
             </TabsContent>
           </Tabs>
         </div>
