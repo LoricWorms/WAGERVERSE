@@ -78,3 +78,17 @@ To run WAGERVERSE locally, follow these steps:
     ```
 
 The application should now be running on `http://localhost:8080`.
+
+## Future Enhancements
+
+Here are some ideas for future development and enhancements:
+
+*   **Odds Management per Team:** Implement a more granular system for managing betting odds, allowing administrators to set specific odds for each team participating in a match.
+*   **Tournament Management Integration:** Develop a comprehensive system for creating, managing, and displaying e-sports tournaments, including brackets, schedules, and results.
+*   **Live Betting:** Introduce real-time betting capabilities, allowing users to place bets during live matches with dynamically updating odds.
+*   **User Leaderboards:** Implement leaderboards to showcase top bettors, fostering competition and engagement.
+*   **Advanced Analytics for Admins:** Provide administrators with detailed analytics and reporting tools to monitor platform performance, user activity, and betting trends.
+*   **Push Notifications:** Integrate push notifications for match reminders, bet results, and important platform updates.
+*   **Multi-language Support:** Expand the platform's reach by adding support for multiple languages.
+*   **Payment Gateway Integration:** Implement secure payment gateways for easier deposit and withdrawal of funds.
+
