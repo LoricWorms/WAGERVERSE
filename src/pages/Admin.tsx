@@ -123,6 +123,13 @@ export default function Admin() {
     );
   }
 
+  const statusTranslations: { [key: string]: string } = {
+    programmed: "Programmé",
+    ongoing: "En cours",
+    done: "Terminé",
+    cancel: "Annulé",
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -232,7 +239,7 @@ export default function Admin() {
                             {match.team1?.name} vs {match.team2?.name}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {new Date(match.match_date).toLocaleString()} • {match.status}
+                            {new Date(match.match_date).toLocaleString()} • {statusTranslations[match.status] ?? match.status}
                           </div>
                         </div>
                         <div className="flex space-x-2">

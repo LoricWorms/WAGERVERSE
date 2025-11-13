@@ -20,7 +20,7 @@ export function CreateMatchForm({ teams, games, onMatchCreated }: CreateMatchFor
     team2_id: "",
     game_id: "",
     match_date: "",
-    status: "programmé",
+    status: "programmed",
     format: "BO3",
   });
 
@@ -50,7 +50,7 @@ export function CreateMatchForm({ teams, games, onMatchCreated }: CreateMatchFor
         team2_id: "",
         game_id: "",
         match_date: "",
-        status: "programmé",
+        status: "programmed",
         format: "BO3",
       });
       onMatchCreated();
