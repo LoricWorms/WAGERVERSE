@@ -36,6 +36,8 @@ Key tables include:
 
 Row Level Security (RLS) is enabled on all tables to ensure data integrity and security. For instance, users can only view their own bets and profile information, while administrators have broader access for management purposes.
 
+**⚠️ IMPORTANT NOTE:** The database functions and triggers responsible for automating actions like match status changes, score assignments, and win/loss calculations for bets are not currently included in the provided migration file. These automations would typically be managed directly within your Supabase project's SQL editor.
+
 ## Getting Started
 
 To run WAGERVERSE locally, follow these steps:
