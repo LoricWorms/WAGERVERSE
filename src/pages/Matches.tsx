@@ -54,7 +54,7 @@ export default function Matches() {
         game:games(name),
         odds:match_odds(team_id, odds)
       `)
-      .eq("status", "programmé")
+      .eq("status", "programmed")
       .order("match_date", { ascending: true });
 
     if (error) {

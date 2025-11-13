@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { Trash2, Edit } from "lucide-react";
-import { Team, Match, Game } from "@/integrations/superbase/types";
+import { Trash2, Edit, Percent } from "lucide-react";
+import { Team, Match, Game, MatchOdds } from "@/integrations/superbase/types";
 import { EditTeamForm } from "@/components/admin/EditTeamForm";
 import { EditMatchForm } from "@/components/admin/EditMatchForm";
 import { CreateTeamForm } from "@/components/admin/CreateTeamForm";
 import { CreateMatchForm } from "@/components/admin/CreateMatchForm";
+import { EditOddsForm } from "@/components/admin/EditOddsForm";
 
 export default function Admin() {
   const [teams, setTeams] = useState<Team[]>([]);
@@ -21,6 +22,7 @@ export default function Admin() {
   const [loading, setLoading] = useState(true);
   const [editingTeam, setEditingTeam] = useState<Team | null>(null);
   const [editingMatch, setEditingMatch] = useState<Match | null>(null);
+  const [editingOddsForMatch, setEditingOddsForMatch] = useState<Match | null>(null);
 
   const navigate = useNavigate();
 
@@ -246,6 +248,14 @@ export default function Admin() {
                           <Button
                             variant="ghost"
                             size="icon"
+                            onClick={() => setEditingOddsForMatch(match)}
+                            className="hover:bg-secondary/10 hover:text-primary"
+                          >
+                            <Percent className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => setEditingMatch(match)}
                             className="hover:bg-secondary/10 hover:text-primary"
                           >
@@ -277,6 +287,18 @@ export default function Admin() {
                     fetchData();
                   }}
                   onCancel={() => setEditingMatch(null)}
+                />
+              )}
+
+              {/* Formulaire de modification des cotes */}
+              {editingOddsForMatch && (
+                <EditOddsForm
+                  match={editingOddsForMatch}
+                  onSave={() => {
+                    setEditingOddsForMatch(null);
+                    fetchData();
+                  }}
+                  onCancel={() => setEditingOddsForMatch(null)}
                 />
               )}
             </TabsContent>

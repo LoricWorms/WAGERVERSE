@@ -617,3 +617,10 @@ export interface Game {
   name: string;
   category: string;
 }
+
+export interface MatchOdds {
+  id: string;
+  match_id: string;
+  team_id: string;
+  odds: number;
+}

@@ -40,8 +40,8 @@ export function CreateMatchForm({ teams, games, onMatchCreated }: CreateMatchFor
     } else {
       // Create default odds
       await supabase.from("match_odds").insert([
-        { match_id: match.id, team_id: matchForm.team1_id, odds: 1.85 },
-        { match_id: match.id, team_id: matchForm.team2_id, odds: 1.85 },
+        { match_id: match.id, team_id: matchForm.team1_id, odds: 2.00 },
+        { match_id: match.id, team_id: matchForm.team2_id, odds: 2.00 },
       ]);
 
       toast.success("Match créé avec succès");
