@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { Gamepad2, Calendar, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { User } from "@supabase/supabase-js";
-
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface Match {
   id: string;
@@ -22,12 +22,33 @@ interface Match {
   odds: { team_id: string; odds: number }[];
 }
 
+const fetchMatches = async () => {
+  const { data, error } = await supabase
+    .from("matches")
+    .select(
+      `
+      id,
+      match_date,
+      status,
+      format,
+      team1:teams!matches_team1_id_fkey(id, name, logo_url, tag),
+      team2:teams!matches_team2_id_fkey(id, name, logo_url, tag),
+      game:games(name),
+      odds:match_odds(team_id, odds)
+    `
+    )
+    .eq("status", "programmed")
+    .order("match_date", { ascending: true });
+
+  if (error) throw new Error(error.message);
+  return data || [];
+};
+
 export default function Matches() {
-  const [matches, setMatches] = useState<Match[]>([]);
   const [betAmounts, setBetAmounts] = useState<{ [key: string]: string }>({});
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -35,98 +56,81 @@ export default function Matches() {
         navigate("/auth");
       } else {
         setUser(session.user);
-        fetchMatches();
       }
     });
   }, [navigate]);
 
-  const fetchMatches = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("matches")
-      .select(`
-        id,
-        match_date,
-        status,
-        format,
-        team1:teams!matches_team1_id_fkey(id, name, logo_url, tag),
-        team2:teams!matches_team2_id_fkey(id, name, logo_url, tag),
-        game:games(name),
-        odds:match_odds(team_id, odds)
-      `)
-      .eq("status", "programmed")
-      .order("match_date", { ascending: true });
+  const { data: matches = [], isLoading } = useQuery<Match[]>({
+    queryKey: ["matches"],
+    queryFn: fetchMatches,
+    enabled: !!user,
+  });
 
-    if (error) {
-      toast.error("Erreur lors du chargement des matchs");
-      console.error(error);
-    } else {
-      setMatches(data || []);
-    }
-    setLoading(false);
-  };
+  const placeBetMutation = useMutation({
+    mutationFn: async ({ matchId, teamId, odds, amount }: { matchId: string; teamId: string; odds: number; amount: number }) => {
+      // Check user balance
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("balance, total_bet")
+        .eq("id", user!.id)
+        .single();
 
-  const placeBet = async (matchId: string, teamId: string, odds: number) => {
-    const amount = parseFloat(betAmounts[`${matchId}-${teamId}`] || "0");
-    
-    if (!amount || amount <= 0) {
-      toast.error("Veuillez saisir un montant valide");
-      return;
-    }
+      if (profileError) throw new Error(profileError.message);
+      if (!profile || profile.balance < amount) {
+        throw new Error("Solde insuffisant");
+      }
 
-    // Check user balance
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("balance, total_bet")
-      .eq("id", user.id)
-      .single();
-
-    if (!profile || profile.balance < amount) {
-      toast.error("Solde insuffisant");
-      return;
-    }
-
-    // Place bet
-    const { error: betError } = await supabase
-      .from("bets")
-      .insert({
-        user_id: user.id,
+      // Place bet
+      const { error: betError } = await supabase.from("bets").insert({
+        user_id: user!.id,
         match_id: matchId,
         team_id: teamId,
         amount: amount,
         odds: odds,
         potential_win: amount * odds,
-        status: "pending"
+        status: "pending",
       });
 
-    if (betError) {
-      toast.error("Erreur lors du placement du pari");
-      console.error(betError);
+      if (betError) throw new Error(betError.message);
+
+      // Update balance
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({
+          balance: profile.balance - amount,
+          total_bet: (profile.total_bet || 0) + amount,
+        })
+        .eq("id", user!.id);
+
+      if (updateError) throw new Error(updateError.message);
+
+      return amount * odds;
+    },
+    onSuccess: (potentialWin, { matchId, teamId }) => {
+      toast.success(`Pari placé ! Gain potentiel: ${potentialWin.toFixed(2)}€`);
+      setBetAmounts({ ...betAmounts, [`${matchId}-${teamId}`]: "" });
+      queryClient.invalidateQueries({ queryKey: ["profileStats", user?.id] });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const handlePlaceBet = (matchId: string, teamId: string, odds: number) => {
+    const amount = parseFloat(betAmounts[`${matchId}-${teamId}`] || "0");
+    if (!amount || amount <= 0) {
+      toast.error("Veuillez saisir un montant valide");
       return;
     }
-
-    // Update balance
-    await supabase
-      .from("profiles")
-      .update({ 
-        balance: profile.balance - amount,
-        total_bet: (profile.total_bet || 0) + amount
-      })
-      .eq("id", user.id);
-
-    toast.success(`Pari placé ! Gain potentiel: ${(amount * odds).toFixed(2)}€`);
-    setBetAmounts({ ...betAmounts, [`${matchId}-${teamId}`]: "" });
-    
-    // Refresh to update balance in navbar
-    window.location.reload();
+    placeBetMutation.mutate({ matchId, teamId, odds, amount });
   };
 
   const getOdds = (match: Match, teamId: string) => {
-    const odd = match.odds.find(o => o.team_id === teamId);
+    const odd = match.odds.find((o) => o.team_id === teamId);
     return odd?.odds || 1.5;
   };
 
-  if (loading) {
+  if (isLoading || !user) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -213,12 +217,14 @@ export default function Matches() {
                               })
                             }
                             className="bg-muted border-border"
+                            disabled={placeBetMutation.isPending}
                           />
                           <Button
-                            onClick={() => placeBet(match.id, match.team1?.id, getOdds(match, match.team1?.id))}
+                            onClick={() => handlePlaceBet(match.id, match.team1?.id, getOdds(match, match.team1?.id))}
                             className="bg-primary hover:bg-primary/90 whitespace-nowrap"
+                            disabled={placeBetMutation.isPending}
                           >
-                            Pariez maintenant
+                            {placeBetMutation.isPending ? "Placement..." : "Pariez maintenant"}
                           </Button>
                         </div>
                       </div>
@@ -257,12 +263,14 @@ export default function Matches() {
                               })
                             }
                             className="bg-muted border-border"
+                            disabled={placeBetMutation.isPending}
                           />
                           <Button
-                            onClick={() => placeBet(match.id, match.team2?.id, getOdds(match, match.team2?.id))}
+                            onClick={() => handlePlaceBet(match.id, match.team2?.id, getOdds(match, match.team2?.id))}
                             className="bg-accent hover:bg-accent/90 whitespace-nowrap"
+                            disabled={placeBetMutation.isPending}
                           >
-                            Pariez maintenant
+                            {placeBetMutation.isPending ? "Placement..." : "Pariez maintenant"}
                           </Button>
                         </div>
                       </div>

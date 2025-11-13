@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, Wallet, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { Session } from "@supabase/supabase-js";
 
 interface Bet {
   id: string;
@@ -25,81 +27,77 @@ interface Bet {
   team: { name: string };
 }
 
+const fetchProfileStats = async (userId: string) => {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("balance, total_bet, total_won")
+    .eq("id", userId)
+    .single();
+  if (error) throw new Error(error.message);
+  return data;
+};
+
+const fetchBets = async (userId: string) => {
+  const { data, error } = await supabase
+    .from("bets")
+    .select(
+      `
+      id,
+      amount,
+      odds,
+      potential_win,
+      status,
+      result,
+      created_at,
+      match:matches(
+        status,
+        team1_score,
+        team2_score,
+        team1:teams!matches_team1_id_fkey(name),
+        team2:teams!matches_team2_id_fkey(name),
+        game:games(name)
+      ),
+      team:teams(name)
+    `
+    )
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return data || [];
+};
+
 export default function Dashboard() {
-  const [bets, setBets] = useState<Bet[]>([]);
-  const [stats, setStats] = useState({
-    balance: 0,
-    totalBet: 0,
-    totalWon: 0,
-  });
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) {
         navigate("/auth");
       } else {
-        fetchDashboardData(session.user.id);
+        setSession(session);
       }
     });
   }, [navigate]);
 
-  const fetchDashboardData = async (userId: string) => {
-    setLoading(true);
+  const { data: stats, isLoading: isLoadingStats } = useQuery({
+    queryKey: ["profileStats", session?.user.id],
+    queryFn: () => fetchProfileStats(session!.user.id),
+    enabled: !!session,
+  });
 
-    // Fetch profile stats
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("balance, total_bet, total_won")
-      .eq("id", userId)
-      .single();
-
-    if (profile) {
-      setStats({
-        balance: profile.balance,
-        totalBet: profile.total_bet || 0,
-        totalWon: profile.total_won || 0,
-      });
-    }
-
-    // Fetch bets
-    const { data: betsData } = await supabase
-      .from("bets")
-      .select(`
-        id,
-        amount,
-        odds,
-        potential_win,
-        status,
-        result,
-        created_at,
-        match:matches(
-          status,
-          team1_score,
-          team2_score,
-          team1:teams!matches_team1_id_fkey(name),
-          team2:teams!matches_team2_id_fkey(name),
-          game:games(name)
-        ),
-        team:teams(name)
-      `)
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false });
-
-    if (betsData) {
-      setBets(betsData);
-    }
-
-    setLoading(false);
-  };
+  const { data: bets = [], isLoading: isLoadingBets } = useQuery<Bet[]>({
+    queryKey: ["bets", session?.user.id],
+    queryFn: () => fetchBets(session!.user.id),
+    enabled: !!session,
+  });
 
   const getStatusBadge = (status: string, result: string | null) => {
     if (status === "pending") {
       return <Badge variant="outline" className="border-warning/50 text-warning">en attente</Badge>;
     }
     if (result === "won") {
-      return <Badge variant="outline" className="border-success/50 text-success">Gangné</Badge>;
+      return <Badge variant="outline" className="border-success/50 text-success">Gagné</Badge>;
     }
     if (result === "lost") {
       return <Badge variant="outline" className="border-destructive/50 text-destructive">Perdu</Badge>;
@@ -107,10 +105,11 @@ export default function Dashboard() {
     return <Badge variant="outline">Unknown</Badge>;
   };
 
-  const profitLoss = stats.totalWon - stats.totalBet;
+  const loading = isLoadingStats || isLoadingBets;
+  const profitLoss = (stats?.total_won || 0) - (stats?.total_bet || 0);
   const isProfitable = profitLoss >= 0;
 
-  if (loading) {
+  if (loading || !session) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -146,7 +145,7 @@ export default function Dashboard() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-success">${stats.balance.toFixed(2)}</div>
+                <div className="text-2xl font-bold text-success">${(stats?.balance || 0).toFixed(2)}</div>
               </CardContent>
             </Card>
 
@@ -158,7 +157,7 @@ export default function Dashboard() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-warning">{stats.totalBet.toFixed(2)}€</div>
+                <div className="text-2xl font-bold text-warning">{(stats?.total_bet || 0).toFixed(2)}€</div>
               </CardContent>
             </Card>
 
@@ -170,7 +169,7 @@ export default function Dashboard() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-success">{stats.totalWon.toFixed(2)}€</div>
+                <div className="text-2xl font-bold text-success">{(stats?.total_won || 0).toFixed(2)}€</div>
               </CardContent>
             </Card>
 

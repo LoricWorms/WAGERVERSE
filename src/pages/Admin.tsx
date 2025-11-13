@@ -8,24 +8,71 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Trash2, Edit, Percent } from "lucide-react";
-import { Team, Match, Game, MatchOdds } from "@/integrations/superbase/types";
+import { Team, Match, Game } from "@/integrations/superbase/types";
 import { EditTeamForm } from "@/components/admin/EditTeamForm";
 import { EditMatchForm } from "@/components/admin/EditMatchForm";
 import { CreateTeamForm } from "@/components/admin/CreateTeamForm";
 import { CreateMatchForm } from "@/components/admin/CreateMatchForm";
 import { EditOddsForm } from "@/components/admin/EditOddsForm";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
+const fetchTeams = async () => {
+  const { data, error } = await supabase.from("teams").select("*").order("name");
+  if (error) throw new Error(error.message);
+  return data || [];
+};
+
+const fetchMatches = async () => {
+  const { data, error } = await supabase
+    .from("matches")
+    .select(
+      `
+      id,
+      match_date,
+      status,
+      format,
+      team1_score,
+      team2_score,
+      team1:teams!matches_team1_id_fkey(id, name),
+      team2:teams!matches_team2_id_fkey(id, name),
+      game:games(id, name)
+    `
+    )
+    .order("match_date", { ascending: false });
+  if (error) throw new Error(error.message);
+  return data || [];
+};
+
+const fetchGames = async () => {
+  const { data, error } = await supabase.from("games").select("*").order("name");
+  if (error) throw new Error(error.message);
+  return data || [];
+};
 
 export default function Admin() {
-  const [teams, setTeams] = useState<Team[]>([]);
-  const [matches, setMatches] = useState<Match[]>([]);
-  const [games, setGames] = useState<Game[]>([]);
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
   const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [editingTeam, setEditingTeam] = useState<Team | null>(null);
   const [editingMatch, setEditingMatch] = useState<Match | null>(null);
   const [editingOddsForMatch, setEditingOddsForMatch] = useState<Match | null>(null);
 
-  const navigate = useNavigate();
+  const { data: teams = [], isLoading: isLoadingTeams } = useQuery<Team[]>({
+    queryKey: ["teams"],
+    queryFn: fetchTeams,
+    enabled: isAdmin,
+  });
+  const { data: matches = [], isLoading: isLoadingMatches } = useQuery<Match[]>({
+    queryKey: ["matches"],
+    queryFn: fetchMatches,
+    enabled: isAdmin,
+  });
+  const { data: games = [], isLoading: isLoadingGames } = useQuery<Game[]>({
+    queryKey: ["games"],
+    queryFn: fetchGames,
+    enabled: isAdmin,
+  });
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -50,72 +97,50 @@ export default function Admin() {
       navigate("/");
     } else {
       setIsAdmin(true);
-      fetchData();
     }
   };
 
-  const fetchData = async () => {
-    setLoading(true);
-    
-    // Fetch teams
-    const { data: teamsData } = await supabase
-      .from("teams")
-      .select("*")
-      .order("name");
-    setTeams(teamsData || []);
-
-    // Fetch matches
-    const { data: matchesData } = await supabase
-      .from("matches")
-      .select(`
-        id,
-        match_date,
-        status,
-        format,
-        team1_score,
-        team2_score,
-        team1:teams!matches_team1_id_fkey(id, name),
-        team2:teams!matches_team2_id_fkey(id, name),
-        game:games(id, name)
-      `)
-      .order("match_date", { ascending: false });
-    setMatches(matchesData || []);
-
-    // Fetch games
-    const { data: gamesData } = await supabase
-      .from("games")
-      .select("*")
-      .order("name");
-    setGames(gamesData || []);
-
-    setLoading(false);
-  };
-
-  const handleDeleteTeam = async (id: string) => {
-    if (!confirm("Êtes-vous sûr de vouloir supprimer cette équipe ?")) return;
-
-    const { error } = await supabase.from("teams").delete().eq("id", id);
-
-    if (error) {
-      toast.error("Error deleting team");
-    } else {
+  const deleteTeamMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("teams").delete().eq("id", id);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
       toast.success("Équipe supprimée");
-      fetchData();
+      queryClient.invalidateQueries({ queryKey: ["teams"] });
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const handleDeleteTeam = (id: string) => {
+    if (confirm("Êtes-vous sûr de vouloir supprimer cette équipe ?")) {
+      deleteTeamMutation.mutate(id);
     }
   };
 
-  const handleDeleteMatch = async (id: string) => {
-    if (!confirm("Etes-vous sûr de vouloir supprimer ce match ??")) return;
-
-    const { error } = await supabase.from("matches").delete().eq("id", id);
-
-    if (error) {
-      toast.error("Erreur lors de la suppression du match");
-    } else {
+  const deleteMatchMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("matches").delete().eq("id", id);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
       toast.success("Match supprimé");
-      fetchData();
+      queryClient.invalidateQueries({ queryKey: ["matches"] });
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const handleDeleteMatch = (id: string) => {
+    if (confirm("Etes-vous sûr de vouloir supprimer ce match ??")) {
+      deleteMatchMutation.mutate(id);
     }
   };
+
+  const loading = isLoadingTeams || isLoadingMatches || isLoadingGames;
 
   if (!isAdmin || loading) {
     return (
@@ -155,10 +180,8 @@ export default function Admin() {
 
             {/* Gestion des équipes */}
             <TabsContent value="teams" className="space-y-6">
-              {/* Création d'une nouvelle équipe */}
-              <CreateTeamForm onTeamCreated={fetchData} />
+              <CreateTeamForm onTeamCreated={() => queryClient.invalidateQueries({ queryKey: ["teams"] })} />
 
-              {/* Liste et édition des équipes */}
               <Card className="border-border">
                 <CardHeader>
                   <CardTitle>Toutes les équipes ({teams.length})</CardTitle>
@@ -209,13 +232,12 @@ export default function Admin() {
                 </CardContent>
               </Card>
 
-              {/* Formulaire de modification */}
               {editingTeam && (
                 <EditTeamForm
                   team={editingTeam}
                   onSave={() => {
                     setEditingTeam(null);
-                    fetchData();
+                    queryClient.invalidateQueries({ queryKey: ["teams"] });
                   }}
                   onCancel={() => setEditingTeam(null)}
                 />
@@ -223,10 +245,8 @@ export default function Admin() {
             </TabsContent>
 
             <TabsContent value="matches" className="space-y-6">
-              {/* Create Match */}
-              <CreateMatchForm teams={teams} games={games} onMatchCreated={fetchData} />
+              <CreateMatchForm teams={teams} games={games} onMatchCreated={() => queryClient.invalidateQueries({ queryKey: ["matches"] })} />
 
-              {/* Matches List */}
               <Card className="border-border">
                 <CardHeader>
                   <CardTitle>Tous les matches ({matches.length})</CardTitle>
@@ -283,7 +303,6 @@ export default function Admin() {
                 </CardContent>
               </Card>
 
-              {/* Formulaire de modification de match */}
               {editingMatch && (
                 <EditMatchForm
                   match={editingMatch}
@@ -291,19 +310,18 @@ export default function Admin() {
                   games={games}
                   onSave={() => {
                     setEditingMatch(null);
-                    fetchData();
+                    queryClient.invalidateQueries({ queryKey: ["matches"] });
                   }}
                   onCancel={() => setEditingMatch(null)}
                 />
               )}
 
-              {/* Formulaire de modification des cotes */}
               {editingOddsForMatch && (
                 <EditOddsForm
                   match={editingOddsForMatch}
                   onSave={() => {
                     setEditingOddsForMatch(null);
-                    fetchData();
+                    queryClient.invalidateQueries({ queryKey: ["matches", "odds"] }); // Assuming odds might need their own key
                   }}
                   onCancel={() => setEditingOddsForMatch(null)}
                 />
