@@ -96,7 +96,7 @@ export default function Matches() {
         amount: amount,
         odds: odds,
         potential_win: amount * odds,
-        status: "en attente"
+        status: "pending"
       });
 
     if (betError) {

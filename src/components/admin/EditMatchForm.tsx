@@ -160,10 +160,10 @@ export function EditMatchForm({ match, teams, games, onSave, onCancel }: EditMat
                 required
                 className="w-full p-2 rounded-lg bg-muted border border-border"
               >
-                <option value="programmé">Programmé</option>
-                <option value="en cours">En cours</option>
-                <option value="terminé">Terminé</option>
-                <option value="annulé">Annulé</option>
+                <option value="programmed">programmé</option>
+                <option value="ongoing">En cours</option>
+                <option value="done">Terminé</option>
+                <option value="cancel">Annulé</option>
               </select>
             </div>
             <div className="space-y-2">
