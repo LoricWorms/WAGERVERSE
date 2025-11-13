@@ -1,19 +1,17 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/superbase/client";
 import { Navbar } from "@/components/Navbar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { Trash2, Edit, Percent } from "lucide-react";
 import { Team, Match, Game } from "@/integrations/superbase/types";
 import { EditTeamForm } from "@/components/admin/EditTeamForm";
 import { EditMatchForm } from "@/components/admin/EditMatchForm";
 import { CreateTeamForm } from "@/components/admin/CreateTeamForm";
 import { CreateMatchForm } from "@/components/admin/CreateMatchForm";
 import { EditOddsForm } from "@/components/admin/EditOddsForm";
+import { TeamList } from "@/components/admin/TeamList";
+import { MatchList } from "@/components/admin/MatchList";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const fetchTeams = async () => {
@@ -178,60 +176,9 @@ export default function Admin() {
               <TabsTrigger value="matches">Gestion des Matches</TabsTrigger>
             </TabsList>
 
-            {/* Gestion des équipes */}
             <TabsContent value="teams" className="space-y-6">
               <CreateTeamForm onTeamCreated={() => queryClient.invalidateQueries({ queryKey: ["teams"] })} />
-
-              <Card className="border-border">
-                <CardHeader>
-                  <CardTitle>Toutes les équipes ({teams.length})</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {teams.map((team) => (
-                      <div
-                        key={team.id}
-                        className="flex items-center justify-between p-4 rounded-lg bg-muted border border-border"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <div className="h-10 w-10 rounded-lg bg-card flex items-center justify-center overflow-hidden">
-                            {team.logo_url ? (
-                              <img src={team.logo_url} className="h-full w-full object-contain" />
-                            ) : (
-                              <span className="text-lg font-bold">{team.tag?.[0] ?? "?"}</span>
-                            )}
-                          </div>
-                          <div>
-                            <div className="font-semibold">{team.name} "{team.tag}"</div>
-                            <div className="text-sm text-muted-foreground">
-                              Fondée en: {team.founded_year}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setEditingTeam(team)}
-                            className="hover:bg-secondary/10 hover:text-primary"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDeleteTeam(team.id)}
-                            className="hover:bg-destructive/10 hover:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
+              <TeamList teams={teams} onEditTeam={setEditingTeam} onDeleteTeam={handleDeleteTeam} />
               {editingTeam && (
                 <EditTeamForm
                   team={editingTeam}
@@ -246,63 +193,13 @@ export default function Admin() {
 
             <TabsContent value="matches" className="space-y-6">
               <CreateMatchForm teams={teams} games={games} onMatchCreated={() => queryClient.invalidateQueries({ queryKey: ["matches"] })} />
-
-              <Card className="border-border">
-                <CardHeader>
-                  <CardTitle>Tous les matches ({matches.length})</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {matches.map((match) => (
-                      <div
-                        key={match.id}
-                        className="flex items-center justify-between p-4 rounded-lg bg-muted border border-border"
-                      >
-                        <div>
-                          <div className="font-semibold text-secondary">{match.game?.name}</div>
-                          <div className="text-sm flex items-center gap-2">
-                            {match.team1?.name}
-                            {match.status === "done" && match.team1_score !== null ? <Badge variant="secondary">{match.team1_score}</Badge> : ""}
-                            <span>vs</span>
-                            {match.team2?.name}
-                            {match.status === "done" && match.team2_score !== null ? <Badge variant="secondary">{match.team2_score}</Badge> : ""}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {new Date(match.match_date).toLocaleString()} • {statusTranslations[match.status] ?? match.status}
-                          </div>
-                        </div>
-                        <div className="flex space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setEditingOddsForMatch(match)}
-                            className="hover:bg-secondary/10 hover:text-primary"
-                          >
-                            <Percent className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setEditingMatch(match)}
-                            className="hover:bg-secondary/10 hover:text-primary"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDeleteMatch(match.id)}
-                            className="hover:bg-destructive/10 hover:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
+              <MatchList
+                matches={matches}
+                statusTranslations={statusTranslations}
+                onEditOdds={setEditingOddsForMatch}
+                onEditMatch={setEditingMatch}
+                onDeleteMatch={handleDeleteMatch}
+              />
               {editingMatch && (
                 <EditMatchForm
                   match={editingMatch}
@@ -315,13 +212,12 @@ export default function Admin() {
                   onCancel={() => setEditingMatch(null)}
                 />
               )}
-
               {editingOddsForMatch && (
                 <EditOddsForm
                   match={editingOddsForMatch}
                   onSave={() => {
                     setEditingOddsForMatch(null);
-                    queryClient.invalidateQueries({ queryKey: ["matches", "odds"] }); // Assuming odds might need their own key
+                    queryClient.invalidateQueries({ queryKey: ["matches", "odds"] });
                   }}
                   onCancel={() => setEditingOddsForMatch(null)}
                 />
