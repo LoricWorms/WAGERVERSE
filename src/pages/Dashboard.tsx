@@ -18,6 +18,9 @@ interface Bet {
     team1: { name: string };
     team2: { name: string };
     game: { name: string };
+    status: string;
+    team1_score?: number;
+    team2_score?: number;
   };
   team: { name: string };
 }
@@ -72,6 +75,9 @@ export default function Dashboard() {
         result,
         created_at,
         match:matches(
+          status,
+          team1_score,
+          team2_score,
           team1:teams!matches_team1_id_fkey(name),
           team2:teams!matches_team2_id_fkey(name),
           game:games(name)
@@ -200,8 +206,12 @@ export default function Dashboard() {
                           <span className="font-semibold text-secondary">{bet.match?.game?.name}</span>
                           {getStatusBadge(bet.status, bet.result)}
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                          {bet.match?.team1?.name} vs {bet.match?.team2?.name}
+                        <p className="text-sm text-muted-foreground flex items-center gap-2">
+                          {bet.match?.team1?.name}
+                          {bet.match?.status === "done" && bet.match?.team1_score !== null ? <Badge variant="secondary">{bet.match.team1_score}</Badge> : ""}
+                          <span>vs</span>
+                          {bet.match?.team2?.name}
+                          {bet.match?.status === "done" && bet.match?.team2_score !== null ? <Badge variant="secondary">{bet.match.team2_score}</Badge> : ""}
                         </p>
                         <p className="text-sm">
                           Parié sur <span className="text-primary font-semibold">{bet.team?.name}</span>

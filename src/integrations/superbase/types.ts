@@ -610,6 +610,8 @@ export interface Match {
   team1: { id: string; name: string };
   team2: { id: string; name: string };
   game: { id: string; name: string };
+  team1_score?: number;
+  team2_score?: number;
 }
 
 export interface Game {

@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/superbase/client";
 import { Navbar } from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -71,6 +72,8 @@ export default function Admin() {
         match_date,
         status,
         format,
+        team1_score,
+        team2_score,
         team1:teams!matches_team1_id_fkey(id, name),
         team2:teams!matches_team2_id_fkey(id, name),
         game:games(id, name)
@@ -237,8 +240,12 @@ export default function Admin() {
                       >
                         <div>
                           <div className="font-semibold text-secondary">{match.game?.name}</div>
-                          <div className="text-sm">
-                            {match.team1?.name} vs {match.team2?.name}
+                          <div className="text-sm flex items-center gap-2">
+                            {match.team1?.name}
+                            {match.status === "done" && match.team1_score !== null ? <Badge variant="secondary">{match.team1_score}</Badge> : ""}
+                            <span>vs</span>
+                            {match.team2?.name}
+                            {match.status === "done" && match.team2_score !== null ? <Badge variant="secondary">{match.team2_score}</Badge> : ""}
                           </div>
                           <div className="text-xs text-muted-foreground">
                             {new Date(match.match_date).toLocaleString()} • {statusTranslations[match.status] ?? match.status}
