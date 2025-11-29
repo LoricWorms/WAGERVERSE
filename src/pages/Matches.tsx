@@ -126,7 +126,7 @@ export default function Matches() {
   };
 
   const getOdds = (match: Match, teamId: string) => {
-    const odd = match.odds.find((o) => o.team_id === teamId);
+    const odd = match.odds?.find((o) => o.team_id === teamId);
     return odd?.odds || 1.5;
   };
 
