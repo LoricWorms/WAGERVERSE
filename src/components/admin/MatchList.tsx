@@ -1,4 +1,4 @@
-import { Match } from "@/integrations/superbase/types";
+import { Match } from "@/services/matchService"; // Updated import
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +9,7 @@ interface MatchListProps {
   statusTranslations: { [key: string]: string };
   onEditOdds: (match: Match) => void;
   onEditMatch: (match: Match) => void;
-  onDeleteMatch: (id: string) => void;
+  onDeleteMatch: (match: Match) => void; // Changed from (id: string) to (match: Match)
 }
 
 export function MatchList({
@@ -73,7 +73,7 @@ export function MatchList({
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => onDeleteMatch(match.id)}
+                  onClick={() => onDeleteMatch(match)} // Pass the whole match object
                   className="hover:bg-destructive/10 hover:text-destructive"
                 >
                   <Trash2 className="h-4 w-4" />

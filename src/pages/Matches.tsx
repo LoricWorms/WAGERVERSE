@@ -68,47 +68,35 @@ export default function Matches() {
 
   const placeBetMutation = useMutation({
     mutationFn: async ({ matchId, teamId, odds, amount }: { matchId: string; teamId: string; odds: number; amount: number }) => {
-      // Check user balance
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("balance, total_bet")
-        .eq("id", user!.id)
-        .single();
-
-      if (profileError) throw new Error(profileError.message);
-      if (!profile || profile.balance < amount) {
-        throw new Error("Solde insuffisant");
-      }
-
-      // Place bet
-      const { error: betError } = await supabase.from("bets").insert({
-        user_id: user!.id,
-        match_id: matchId,
-        team_id: teamId,
-        amount: amount,
-        odds: odds,
-        potential_win: amount * odds,
-        status: "pending",
+      // All logic is now moved to the backend function.
+      // We just need to call the RPC and handle the result.
+      const { data, error } = await supabase.rpc('place_bet_atomic', {
+        p_user_id: user!.id,
+        p_match_id: matchId,
+        p_team_id: teamId,
+        p_bet_amount: amount,
+        p_odds: odds,
       });
 
-      if (betError) throw new Error(betError.message);
+      if (error) {
+        throw new Error(error.message);
+      }
 
-      // Update balance
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update({
-          balance: profile.balance - amount,
-          total_bet: (profile.total_bet || 0) + amount,
-        })
-        .eq("id", user!.id);
+      // The RPC function returns a custom structure: { success: boolean, message: string }
+      if (!data[0].success) {
+        throw new Error(data[0].message);
+      }
 
-      if (updateError) throw new Error(updateError.message);
-
-      return amount * odds;
+      return {
+        message: data[0].message,
+        potentialWin: amount * odds
+      };
     },
-    onSuccess: (potentialWin, { matchId, teamId }) => {
-      toast.success(`Pari placé ! Gain potentiel: ${potentialWin.toFixed(2)}€`);
+    onSuccess: (result, { matchId, teamId }) => {
+      // The message can be used directly for the toast
+      toast.success(`${result.message}. Gain potentiel: ${result.potentialWin.toFixed(2)}€`);
       setBetAmounts({ ...betAmounts, [`${matchId}-${teamId}`]: "" });
+      // Invalidate queries to refresh user's balance and other related stats
       queryClient.invalidateQueries({ queryKey: ["profileStats", user?.id] });
     },
     onError: (error: Error) => {

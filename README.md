@@ -21,6 +21,10 @@ WAGERVERSE is a modern, full-stack e-sports betting platform. It provides a seam
 - **Data Fetching & State Management:** TanStack Query
 - **Form Handling:** React Hook Form with Zod for validation
 
+## Architecture
+
+For a high-level overview of the application's components and their interactions, please refer to the [ARCHITECTURE.md](./ARCHITECTURE.md) file.
+
 ## Database Schema
 
 The application's database is managed through Supabase and the schema is defined in the migration file located at `superbase/migrations/`.
@@ -35,8 +39,6 @@ Key tables include:
 - `user_roles`: Manages user roles (e.g., `admin`, `user`) for access control.
 
 Row Level Security (RLS) is enabled on all tables to ensure data integrity and security. For instance, users can only view their own bets and profile information, while administrators have broader access for management purposes.
-
-**⚠️ IMPORTANT NOTE:** The database functions and triggers responsible for automating actions like match status changes, score assignments, and win/loss calculations for bets are not currently included in the provided migration file. These automations would typically be managed directly within your Supabase project's SQL editor.
 
 ## Getting Started
 
@@ -68,10 +70,63 @@ To run WAGERVERSE locally, follow these steps:
     - Create a new project on [Supabase](https://supabase.com).
     - Navigate to the **SQL Editor** in your Supabase project dashboard.
     - Copy the content of `superbase/migrations/20251002134752_8cc0eaac-a255-4363-84fc-c56714f3175b.sql` and run it to set up your database schema, roles, and security policies.
+    - **Important: Deploy the atomic betting function:**
+      - In the SQL Editor, execute the following function to enable atomic bet placement and prevent negative balances:
+
+      ```sql
+      CREATE OR REPLACE FUNCTION public.place_bet_atomic(
+          p_user_id uuid,
+          p_match_id uuid,
+          p_team_id uuid,
+          p_bet_amount numeric,
+          p_odds numeric
+      )
+      RETURNS TABLE(success boolean, message text)
+      LANGUAGE plpgsql
+      SECURITY DEFINER AS $$
+      DECLARE
+          current_balance numeric;
+          potential_winnings numeric;
+      BEGIN
+          SELECT balance INTO current_balance
+          FROM public.profiles
+          WHERE id = p_user_id
+          FOR UPDATE;
+
+          IF current_balance < p_bet_amount THEN
+              RETURN QUERY SELECT FALSE, 'Solde insuffisant';
+              RETURN;
+          END IF;
+          
+          potential_winnings := p_bet_amount * p_odds;
+
+          UPDATE public.profiles
+          SET
+              balance = balance - p_bet_amount,
+              total_bet = COALESCE(total_bet, 0) + p_bet_amount
+          WHERE id = p_user_id;
+
+          INSERT INTO public.bets (user_id, match_id, team_id, amount, odds, potential_win, status)
+          VALUES (p_user_id, p_match_id, p_team_id, p_bet_amount, p_odds, potential_winnings, 'pending');
+
+          RETURN QUERY SELECT TRUE, 'Pari placé avec succès';
+
+      EXCEPTION
+          WHEN OTHERS THEN
+              RETURN QUERY SELECT FALSE, 'Erreur interne lors du placement du pari.';
+      END;
+      $$;
+
+      GRANT EXECUTE ON FUNCTION public.place_bet_atomic(uuid, uuid, uuid, numeric, numeric) TO authenticated;
+      ```
 
 4.  **Configure environment variables:**
 
-    - Create a `.env` file in the root of the project.
+    - **⚠️ Security Warning:** Do NOT commit your `.env` file to version control.
+    - Create a `.env` file in the root of the project by copying `public/.env.example`:
+    ```bash
+    cp public/.env.example .env
+    ```
     - Navigate to **Project Settings > API** in your Supabase dashboard.
     - Copy the **Project URL** and the **anon (public) Key** into your `.env` file:
 
@@ -92,6 +147,14 @@ The application should now be running on `http://localhost:8080`.
 ### Done
 
 - **Odds Management per Team:** Implemented a system for managing betting odds, allowing administrators to set specific odds for each team participating in a match.
+- **Robust Form Validation:** Integrated Zod with React Hook Form for comprehensive client-side form validation, ensuring data integrity before submission.
+- **Dedicated Service Layer:** Introduced a service layer to centralize and encapsulate Supabase API calls, improving code organization, reusability, and maintainability.
+- **Atomic Bet Transactions:** Implemented atomic betting logic using a PostgreSQL function to prevent race conditions and ensure consistent user balances during bet placement.
+- **Enhanced Error Handling:** Added `try/catch` blocks across critical API calls and authentication flows for more robust error management and user feedback.
+- **Custom Confirmation Dialogs:** Replaced native `window.confirm()` alerts with custom `AlertDialog` components from `shadcn/ui` for a more integrated and consistent user experience.
+- **Magic Number Refactoring:** Replaced hardcoded numerical values with named constants for improved readability, easier maintenance, and better adherence to coding standards.
+- **List Pagination:** Implemented pagination for team and match listings in the admin panel, improving performance and user experience for large datasets.
+- **Debounce Hook:** Created a `useDebounce` hook available for future use in optimizing input-triggered operations, although current application inputs do not present immediate performance bottlenecks requiring its implementation.
 
 ### To Do
 

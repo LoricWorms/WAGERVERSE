@@ -1,4 +1,4 @@
-import { Team } from "@/integrations/superbase/types";
+import { Team } from "@/services/teamService"; // Updated import
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from "lucide-react";
@@ -6,7 +6,7 @@ import { Edit, Trash2 } from "lucide-react";
 interface TeamListProps {
   teams: Team[];
   onEditTeam: (team: Team) => void;
-  onDeleteTeam: (id: string) => void;
+  onDeleteTeam: (team: Team) => void; // Changed from (id: string) to (team: Team)
 }
 
 export function TeamList({ teams, onEditTeam, onDeleteTeam }: TeamListProps) {
@@ -49,7 +49,7 @@ export function TeamList({ teams, onEditTeam, onDeleteTeam }: TeamListProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => onDeleteTeam(team.id)}
+                  onClick={() => onDeleteTeam(team)} // Pass the whole team object
                   className="hover:bg-destructive/10 hover:text-destructive"
                 >
                   <Trash2 className="h-4 w-4" />

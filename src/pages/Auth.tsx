@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Trophy } from "lucide-react";
+import { STARTING_BALANCE } from "@/lib/constants";
 import { useSearchParams } from "react-router-dom";
 
 export default function Auth() {
@@ -82,7 +83,7 @@ export default function Auth() {
           <CardDescription className="text-muted-foreground">
             {isLogin
               ? "Connectez-vous pour commencer à parier sur vos équipes préférées"
-              : "Créez un compte et obtenez un bonus de bienvenue de 1000 $"}
+              : `Créez un compte et obtenez un bonus de bienvenue de ${STARTING_BALANCE} € `}
           </CardDescription>
         </CardHeader>
         <CardContent>
