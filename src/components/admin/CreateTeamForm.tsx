@@ -50,6 +50,8 @@ export function CreateTeamForm({ onTeamCreated }: CreateTeamFormProps) {
     },
   });
 
+  console.log("CreateTeamForm initial isValid:", form.formState.isValid, "isDirty:", form.formState.isDirty, "errors:", form.formState.errors);
+
   const handleCreateTeam = async (values: z.infer<typeof createTeamSchema>) => {
     try {
       await createTeam(values); // Use the service function

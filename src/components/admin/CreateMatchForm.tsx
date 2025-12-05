@@ -46,7 +46,9 @@ const createMatchSchema = z.object({
   team1_id: z.string().min(1, "Veuillez sélectionner l'équipe 1."),
   team2_id: z.string().min(1, "Veuillez sélectionner l'équipe 2."),
   game_id: z.string().min(1, "Veuillez sélectionner un jeu."),
-  match_date: z.string().datetime("La date du match doit être une date et heure valides."), // ISO string
+  match_date: z.string()
+    .min(1, "Veuillez sélectionner une date et heure pour le match.")
+    .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, "Le format de la date et de l'heure doit être AAAA-MM-JJTHH:MM"),
   status: z.enum(["programmed", "ongoing", "done", "cancel"]).default("programmed"),
   format: z.string().min(MATCH_FORMAT_MIN_LENGTH, `Le format doit contenir au moins ${MATCH_FORMAT_MIN_LENGTH} caractères.`).default("BO3"),
   // Default odds for creation - these aren't directly inserted into 'matches' table
@@ -74,7 +76,6 @@ export function CreateMatchForm({ teams, games, onMatchCreated }: CreateMatchFor
       odds_team2: DEFAULT_ODDS,
     },
   });
-
 
   const handleCreateMatch = async (values: z.infer<typeof createMatchSchema>) => {
     try {
