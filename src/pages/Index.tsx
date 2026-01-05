@@ -1,117 +1,116 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Trophy, Zap, Shield, TrendingUp } from "lucide-react";
-import { Navbar } from "@/components/Navbar";
+import { Card, CardContent } from "@/components/ui/card";
+import { ArrowRight, Trophy, Zap, Shield, Users } from "lucide-react";
 
 const Index = () => {
+  const FeatureCard = ({ icon, title, children }: { icon: React.ReactNode, title: string, children: React.ReactNode }) => (
+    <Card className="bg-card/50 border-border/50 hover:border-primary/50 transition-all transform hover:-translate-y-1">
+      <CardContent className="p-6 text-center">
+        <div className="inline-block bg-primary/10 text-primary p-3 rounded-lg mb-4">
+          {icon}
+        </div>
+        <h3 className="text-xl font-bold mb-2">{title}</h3>
+        <p className="text-muted-foreground">{children}</p>
+      </CardContent>
+    </Card>
+  );
+
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      
+    <div className="flex flex-col items-center">
+
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 md:py-32">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,_hsl(var(--primary)/0.3),transparent_50%),radial-gradient(circle_at_70%_50%,_hsl(var(--accent)/0.3),transparent_50%)]" />
+      <section className="w-full text-center py-24 md:py-32 relative overflow-hidden">
+        <div className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 w-[60rem] h-[60rem] rounded-full bg-primary/10 blur-3xl -z-10" />
+        <div className="absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 w-[40rem] h-[40rem] rounded-full bg-secondary/10 blur-3xl -z-10" />
         
-        <div className="container mx-auto px-4 relative">
-          <div className="max-w-4xl mx-auto text-center space-y-8">
-            <div className="inline-flex items-center space-x-2 bg-muted/50 backdrop-blur-sm px-4 py-2 rounded-full border border-primary/20">
-              <Zap className="h-4 w-4 text-primary animate-pulse" />
-              <span className="text-sm font-medium">Paris en direct • Cotes en temps réel • Paiements instantanés</span>
-            </div>
-            
-            <h1 className="text-5xl md:text-7xl font-bold leading-tight">
-              <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-                WAGERVERSE
-              </span>
-              <br />
-              <span className="text-foreground">Paris E-Sport</span>
-            </h1>
-            
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
-              La plateforme idéale pour les passionnés d'e-sport. Pariez sur vos équipes préférées, suivez les matchs en direct et remportez gros avec des cotes compétitives.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" asChild className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-lg px-8">
-                <Link to="/matches">Commencez à parier</Link>
-              </Button>
-            </div>
-            
-            <div className="grid grid-cols-3 gap-8 pt-12">
-              <div className="space-y-2">
-                <div className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">$1M+</div>
-                <div className="text-sm text-muted-foreground">Gain totaux</div>
-              </div>
-              <div className="space-y-2">
-                <div className="text-4xl font-bold bg-gradient-to-r from-secondary to-accent bg-clip-text text-transparent">50K+</div>
-                <div className="text-sm text-muted-foreground">Utilisateurs actifs</div>
-              </div>
-              <div className="space-y-2">
-                <div className="text-4xl font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">99.9%</div>
-                <div className="text-sm text-muted-foreground">Uptime</div>
-              </div>
-            </div>
+        <div className="container mx-auto px-4">
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tighter mb-6">
+            L'arène ultime des paris <span className="text-primary">E-Sport</span>
+          </h1>
+          <p className="max-w-2xl mx-auto text-xl text-muted-foreground mb-10">
+            Plongez au cœur de l'action. Pariez sur vos équipes préférées, analysez les statistiques et vivez chaque match comme si vous y étiez.
+          </p>
+          <div className="flex justify-center items-center gap-4">
+            <Button size="lg" asChild>
+              <Link to="/matches">
+                Voir les matchs <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" asChild>
+              <Link to="/auth?mode=signup">Créer un compte</Link>
+            </Button>
           </div>
+        </div>
+      </section>
+
+      {/* Featured Games Section */}
+      <section className="py-16 text-center container">
+        <h2 className="text-sm uppercase text-muted-foreground font-semibold tracking-widest">
+          Jeux Populaires
+        </h2>
+        <div className="flex justify-center items-center gap-8 md:gap-12 mt-6 flex-wrap">
+          {/* Replace with actual game logos */}
+          <span className="text-2xl font-semibold text-muted-foreground">League of Legends</span>
+          <span className="text-2xl font-semibold text-muted-foreground">CS:GO</span>
+          <span className="text-2xl font-semibold text-muted-foreground">Valorant</span>
+          <span className="text-2xl font-semibold text-muted-foreground">Dota 2</span>
+          <span className="text-2xl font-semibold text-muted-foreground">Rocket League</span>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-card/30">
+      <section className="w-full py-24 md:py-32 bg-card/30">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-12">
-            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Pourquoi parier avec WAGERVERSE
-            </span>
-          </h2>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="p-6 rounded-lg bg-card border border-border hover:border-primary/50 transition-colors">
-              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                <Trophy className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-bold mb-2">Meilleures cotes</h3>
-              <p className="text-muted-foreground">
-                Des cotes compétitives sur tous les grands tournois d'e-sport. Maximisez vos gains potentiels.
-              </p>
-            </div>
-            
-            <div className="p-6 rounded-lg bg-card border border-border hover:border-secondary/50 transition-colors">
-              <div className="h-12 w-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-4">
-                <Zap className="h-6 w-6 text-secondary" />
-              </div>
-              <h3 className="text-xl font-bold mb-2">Paiements instantanés</h3>
-              <p className="text-muted-foreground">
-                Recevez vos gains instantanément. Sans attente, sans tracas. Votre argent, votre temps.
-              </p>
-            </div>
-            
-            <div className="p-6 rounded-lg bg-card border border-border hover:border-accent/50 transition-colors">
-              <div className="h-12 w-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4">
-                <Shield className="h-6 w-6 text-accent" />
-              </div>
-              <h3 className="text-xl font-bold mb-2">Plateforme sécurisée</h3>
-              <p className="text-muted-foreground">
-                Sécurité de niveau bancaire. Vos fonds et vos données sont toujours protégés grâce à un chiffrement de pointe.
-              </p>
-            </div>
+          <div className="text-center max-w-3xl mx-auto">
+            <h2 className="text-4xl font-bold mb-4">Pourquoi <span className="text-primary">WAGERVERSE</span> ?</h2>
+            <p className="text-muted-foreground text-lg">
+              Nous avons construit la plateforme que nous avons toujours voulu utiliser. Rapide, sécurisée et conçue pour les vrais fans.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
+            <FeatureCard icon={<Trophy className="h-6 w-6"/>} title="Cotes compétitives">
+              Obtenez le meilleur retour sur investissement avec nos cotes optimisées en temps réel sur les plus grands tournois.
+            </FeatureCard>
+            <FeatureCard icon={<Zap className="h-6 w-6"/>} title="Paiements instantanés">
+              Vos gains sont crédités sur votre compte à la seconde où un match se termine. Pas d'attente.
+            </FeatureCard>
+            <FeatureCard icon={<Shield className="h-6 w-6"/>} title="Sécurité renforcée">
+              Nous utilisons un cryptage de pointe et les meilleures pratiques pour garantir que vos fonds et données sont en sécurité.
+            </FeatureCard>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center space-y-6 p-12 rounded-2xl bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 border border-primary/20">
-            <TrendingUp className="h-16 w-16 mx-auto text-primary" />
-            <h2 className="text-4xl font-bold">Prêt à gagner gros ?</h2>
-            <p className="text-xl text-muted-foreground">
-              Rejoignez des milliers de gagnants sur WAGERVERSE. Recevez un bonus de bienvenue de 50€ dès aujourd'hui.
-            </p>
-            <Button size="lg" asChild className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-lg px-8">
-              <Link to="/auth?mode=signup">Créer un compte maintenant</Link>
-            </Button>
-          </div>
+      {/* Testimonials Section */}
+      <section className="py-24 md:py-32">
+        <div className="container mx-auto px-4 max-w-4xl text-center">
+            <Users className="h-10 w-10 text-primary mx-auto mb-4" />
+            <h2 className="text-4xl font-bold mb-8">Ils nous font confiance</h2>
+            <div className="space-y-8">
+              <blockquote className="text-2xl font-medium leading-relaxed">
+                “La meilleure plateforme de paris e-sport que j'ai utilisée. L'interface est clean, les paiements sont rapides. Je ne peux que recommander !”
+              </blockquote>
+              <footer className="text-center">
+                <p className="font-bold">Alex "TheStrategist" Dubois</p>
+                <p className="text-muted-foreground">Parieur professionnel & Streamer</p>
+              </footer>
+            </div>
+        </div>
+      </section>
+
+      {/* Final CTA Section */}
+      <section className="w-full py-24 md:py-32 bg-gradient-to-t from-primary/10">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Prêt à placer votre premier pari ?</h2>
+          <p className="mt-4 text-lg text-muted-foreground max-w-xl mx-auto">
+            Rejoignez des milliers d'autres fans et commencez à gagner aujourd'hui. L'inscription est rapide et gratuite.
+          </p>
+          <Button size="lg" className="mt-8" asChild>
+            <Link to="/auth?mode=signup">
+              Rejoignez WAGERVERSE gratuitement <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
+          </Button>
         </div>
       </section>
     </div>

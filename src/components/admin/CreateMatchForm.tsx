@@ -4,10 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 // import { Input } from "@/components/ui/input"; // Replaced by FormField and shadcn Input
 // import { Label } from "@/components/ui/label"; // Replaced by FormLabel
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { Team } from "@/services/teamService"; // Import Team from service
-import { Game } from "@/services/gameService"; // Import Game from service
+import { Team } from "@/integrations/superbase/types"; // Import Team from service
+import { Game } from "@/integrations/superbase/types"; // Import Game from service
 import { createMatch, MatchFormData } from "@/services/matchService"; // Import service
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -62,7 +62,6 @@ const createMatchSchema = z.object({
 
 
 export function CreateMatchForm({ teams, games, onMatchCreated }: CreateMatchFormProps) {
-  // const [matchForm, setMatchForm] = useState(...) -> Replaced by useForm
   const form = useForm<z.infer<typeof createMatchSchema>>({
     resolver: zodResolver(createMatchSchema),
     defaultValues: {
@@ -77,19 +76,19 @@ export function CreateMatchForm({ teams, games, onMatchCreated }: CreateMatchFor
     },
   });
 
+  const [isCreating, setIsCreating] = useState(false);
+
   const handleCreateMatch = async (values: z.infer<typeof createMatchSchema>) => {
+    setIsCreating(true);
     try {
-      // Destructure values for match creation and odds creation
       const { odds_team1, odds_team2, ...matchData } = values;
 
-      const newMatch = await createMatch(matchData as MatchFormData); // Use service
+      const newMatch = await createMatch(matchData as MatchFormData);
       
       if (!newMatch || !newMatch.id) {
         throw new Error("Match creation failed or returned no ID.");
       }
 
-      // Create default odds - This part should also ideally be in a service (e.g., oddsService)
-      // For now, keeping it here with error handling.
       await supabase.from("match_odds").insert([
         { match_id: newMatch.id, team_id: matchData.team1_id, odds: odds_team1 },
         { match_id: newMatch.id, team_id: matchData.team2_id, odds: odds_team2 },
@@ -101,34 +100,36 @@ export function CreateMatchForm({ teams, games, onMatchCreated }: CreateMatchFor
     } catch (error: any) {
       toast.error(`Erreur lors de la création du match: ${error.message || error}`);
       console.error(error);
+    } finally {
+      setIsCreating(false);
     }
   };
 
   return (
-    <Card className="border-border">
+    <Card className="border-border bg-card/50">
       <CardHeader>
-        <CardTitle className="flex items-center">
-          <Plus className="mr-2 h-5 w-5" />
+        <CardTitle className="flex items-center text-xl">
+          <Plus className="mr-2 h-5 w-5 text-primary" />
           Créer un nouveau match
         </CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleCreateMatch)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleCreateMatch)} className="space-y-6">
             <div className="grid md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="team1_id"
                 render={({ field }) => (
-                  <FormItem className="space-y-2">
-                    <FormLabel htmlFor="team1">Equipe 1</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormItem>
+                    <FormLabel>Équipe 1</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isCreating}>
                       <FormControl>
-                        <SelectTrigger className="w-full p-2 rounded-lg bg-muted border border-border">
+                        <SelectTrigger className="bg-background border-border">
                           <SelectValue placeholder="Sélectionnez l'équipe 1" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="bg-background border-border">
                         {teams.map((team) => (
                           <SelectItem key={team.id} value={team.id}>
                             {team.name}
@@ -144,15 +145,15 @@ export function CreateMatchForm({ teams, games, onMatchCreated }: CreateMatchFor
                 control={form.control}
                 name="team2_id"
                 render={({ field }) => (
-                  <FormItem className="space-y-2">
-                    <FormLabel htmlFor="team2">Equipe 2</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormItem>
+                    <FormLabel>Équipe 2</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isCreating}>
                       <FormControl>
-                        <SelectTrigger className="w-full p-2 rounded-lg bg-muted border border-border">
+                        <SelectTrigger className="bg-background border-border">
                           <SelectValue placeholder="Sélectionnez l'équipe 2" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="bg-background border-border">
                         {teams.map((team) => (
                           <SelectItem key={team.id} value={team.id}>
                             {team.name}
@@ -170,15 +171,15 @@ export function CreateMatchForm({ teams, games, onMatchCreated }: CreateMatchFor
                 control={form.control}
                 name="game_id"
                 render={({ field }) => (
-                  <FormItem className="space-y-2">
-                    <FormLabel htmlFor="game">Jeu</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormItem>
+                    <FormLabel>Jeu</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isCreating}>
                       <FormControl>
-                        <SelectTrigger className="w-full p-2 rounded-lg bg-muted border border-border">
+                        <SelectTrigger className="bg-background border-border">
                           <SelectValue placeholder="Sélectionnez le jeu" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="bg-background border-border">
                         {games.map((game) => (
                           <SelectItem key={game.id} value={game.id}>
                             {game.name}
@@ -194,14 +195,14 @@ export function CreateMatchForm({ teams, games, onMatchCreated }: CreateMatchFor
                 control={form.control}
                 name="match_date"
                 render={({ field }) => (
-                  <FormItem className="space-y-2">
-                    <FormLabel htmlFor="match_date">Date du match</FormLabel>
+                  <FormItem>
+                    <FormLabel>Date & Heure du match</FormLabel>
                     <FormControl>
                       <Input
-                        id="match_date"
                         type="datetime-local"
-                        className="bg-muted border-border"
+                        className="bg-background border-border"
                         {...field}
+                        disabled={isCreating}
                       />
                     </FormControl>
                     <FormMessage />
@@ -212,14 +213,14 @@ export function CreateMatchForm({ teams, games, onMatchCreated }: CreateMatchFor
                 control={form.control}
                 name="format"
                 render={({ field }) => (
-                  <FormItem className="space-y-2">
-                    <FormLabel htmlFor="format">Format</FormLabel>
+                  <FormItem>
+                    <FormLabel>Format</FormLabel>
                     <FormControl>
                       <Input
-                        id="format"
                         placeholder="BO3"
-                        className="bg-muted border-border"
+                        className="bg-background border-border"
                         {...field}
+                        disabled={isCreating}
                       />
                     </FormControl>
                     <FormMessage />
@@ -232,17 +233,17 @@ export function CreateMatchForm({ teams, games, onMatchCreated }: CreateMatchFor
                 control={form.control}
                 name="odds_team1"
                 render={({ field }) => (
-                  <FormItem className="space-y-2">
-                    <FormLabel htmlFor="odds_team1">Cote Équipe 1</FormLabel>
+                  <FormItem>
+                    <FormLabel>Cote Équipe 1</FormLabel>
                     <FormControl>
                       <Input
-                        id="odds_team1"
                         type="number"
                         step="0.01"
                         placeholder={`${DEFAULT_ODDS.toFixed(2)}`}
-                        className="bg-muted border-border"
+                        className="bg-background border-border"
                         {...field}
                         onChange={e => field.onChange(parseFloat(e.target.value))}
+                        disabled={isCreating}
                       />
                     </FormControl>
                     <FormMessage />
@@ -253,17 +254,17 @@ export function CreateMatchForm({ teams, games, onMatchCreated }: CreateMatchFor
                 control={form.control}
                 name="odds_team2"
                 render={({ field }) => (
-                  <FormItem className="space-y-2">
-                    <FormLabel htmlFor="odds_team2">Cote Équipe 2</FormLabel>
+                  <FormItem>
+                    <FormLabel>Cote Équipe 2</FormLabel>
                     <FormControl>
                       <Input
-                        id="odds_team2"
                         type="number"
                         step="0.01"
                         placeholder={`${DEFAULT_ODDS.toFixed(2)}`}
-                        className="bg-muted border-border"
+                        className="bg-background border-border"
                         {...field}
                         onChange={e => field.onChange(parseFloat(e.target.value))}
+                        disabled={isCreating}
                       />
                     </FormControl>
                     <FormMessage />
@@ -271,8 +272,12 @@ export function CreateMatchForm({ teams, games, onMatchCreated }: CreateMatchFor
                 )}
               />
             </div>
-            <Button type="submit" className="bg-primary hover:bg-primary/90" disabled={!form.formState.isValid}>
-              Créer le match
+            <Button type="submit" className="w-full" disabled={!form.formState.isValid || isCreating}>
+              {isCreating ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Création...</>
+              ) : (
+                "Créer le match"
+              )}
             </Button>
           </form>
         </Form>

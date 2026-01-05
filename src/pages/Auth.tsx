@@ -1,19 +1,17 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/superbase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Trophy } from "lucide-react";
+import { Trophy, ArrowRight } from "lucide-react";
 import { STARTING_BALANCE } from "@/lib/constants";
-import { useSearchParams } from "react-router-dom";
 
 export default function Auth() {
-  const [searchParams] = useSearchParams();
-  const mode = searchParams.get("mode");
-  const [isLogin, setIsLogin] = useState(mode !== "signup");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isLogin = searchParams.get("mode") !== "signup";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
@@ -34,13 +32,9 @@ export default function Auth() {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        toast.success("Bon retour!");
+        toast.success("Bon retour !");
         navigate("/matches");
       } else {
         const { error } = await supabase.auth.signUp({
@@ -53,97 +47,108 @@ export default function Auth() {
             },
           },
         });
-
         if (error) throw error;
-        toast.success("Compte créé! Bienvenue sur WAGERVERSE");
+        toast.success("Compte créé ! Bienvenue sur WAGERVERSE");
         navigate("/matches");
       }
-    } catch (error: unknown) {
-  if (error instanceof Error) {
-    toast.error(error.message);
-  } else {
-    toast.error("Une erreur inattendue s'est produite");
-  }
-}
-
+    } catch (error: any) {
+      toast.error(error.message || "Une erreur est survenue.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20 pointer-events-none" />
-      
-      <Card className="w-full max-w-md relative border-border/50 shadow-2xl shadow-primary/20">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <Trophy className="h-12 w-12 text-primary animate-pulse" />
+    <div className="min-h-screen w-full lg:grid lg:grid-cols-2">
+      <div className="flex items-center justify-center py-12">
+        <div className="mx-auto grid w-[350px] gap-6">
+          <div className="grid gap-2 text-center">
+            <h1 className="text-3xl font-bold">
+              {isLogin ? "Bon retour parmi nous" : "Créez votre compte"}
+            </h1>
+            <p className="text-balance text-muted-foreground">
+              {isLogin ? "Entrez vos identifiants pour accéder à votre compte" : `Rejoignez la communauté et recevez ${STARTING_BALANCE}€ de bonus`}
+            </p>
           </div>
-          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-            {isLogin ? "Bon retour" : "Rejoins WAGERVERSE"}
-          </CardTitle>
-          <CardDescription className="text-muted-foreground">
-            {isLogin
-              ? "Connectez-vous pour commencer à parier sur vos équipes préférées"
-              : `Créez un compte et obtenez un bonus de bienvenue de ${STARTING_BALANCE} € `}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleAuth} className="space-y-4">
+          <form onSubmit={handleAuth} className="grid gap-4">
             {!isLogin && (
-              <div className="space-y-2">
+              <div className="grid gap-2">
                 <Label htmlFor="username">Nom d'utilisateur</Label>
                 <Input
                   id="username"
-                  type="text"
-                  placeholder="Entrez votre nom d'utilisateur"
+                  placeholder="TheStrategist"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="bg-muted border-border"
+                  disabled={loading}
                 />
               </div>
             )}
-            <div className="space-y-2">
+            <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="Entrez votre adresse email"
+                placeholder="email@exemple.com"
+                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                required
-                className="bg-muted border-border"
+                disabled={loading}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="Mot de passe">Mot de passe</Label>
+            <div className="grid gap-2">
+              <div className="flex items-center">
+                <Label htmlFor="password">Mot de passe</Label>
+                {isLogin && (
+                  <Link
+                    to="/forgot-password"
+                    className="ml-auto inline-block text-sm underline"
+                  >
+                    Mot de passe oublié?
+                  </Link>
+                )}
+              </div>
               <Input
                 id="password"
                 type="password"
-                placeholder="Entrez votre mot de passe"
+                required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
-                className="bg-muted border-border"
+                disabled={loading}
               />
             </div>
-            <Button
-              type="submit"
-              className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90"
-              disabled={loading}
-            >
-              {loading ? "Loading..." : isLogin ? "Se connecter" : "S'inscrire"}
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Chargement..." : isLogin ? "Connexion" : "Créer le compte"}
+            </Button>
+            <Button variant="outline" className="w-full" type="button" disabled={loading}>
+              Se connecter avec Google
             </Button>
           </form>
-          <div className="mt-4 text-center">
-            <button
-              type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-primary hover:text-accent transition-colors"
-            >
-              {isLogin ? "Vous n'avez pas de compte ? S'inscrire" : "Vous avez un compte ? Se connecter"}
-            </button>
+          <div className="mt-4 text-center text-sm">
+            {isLogin ? "Vous n'avez pas de compte ? " : "Vous avez déjà un compte ? "}
+            <Link to={isLogin ? "/auth?mode=signup" : "/auth?mode=login"} className="underline">
+              {isLogin ? "S'inscrire" : "Se connecter"}
+            </Link>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+      <div className="hidden bg-muted lg:flex flex-col items-center justify-center p-12 text-center relative overflow-hidden">
+         <div className="absolute top-0 left-0 -translate-x-1/3 -translate-y-1/3 w-[50rem] h-[50rem] rounded-full bg-primary/5 blur-3xl -z-10" />
+        <div className="absolute bottom-0 right-0 translate-x-1/3 translate-y-1/3 w-[50rem] h-[50rem] rounded-full bg-background/10 blur-3xl -z-10" />
+
+        <Link to="/" className="flex items-center gap-2 mb-8">
+            <Trophy className="h-8 w-8 text-primary" />
+            <span className="text-2xl font-bold tracking-tight">WAGERVERSE</span>
+        </Link>
+        <h2 className="text-4xl font-bold tracking-tight mb-4">
+            Rejoignez l'arène dès maintenant.
+        </h2>
+        <p className="text-muted-foreground max-w-md text-lg">
+            Des milliers de fans vous attendent. Pariez, analysez et remportez la victoire. Votre prochaine grande victoire est à portée de clic.
+        </p>
+        <Button variant="ghost" className="mt-8" asChild>
+            <Link to="/">Retour à l'accueil <ArrowRight className="ml-2 h-4 w-4" /></Link>
+        </Button>
+      </div>
     </div>
   );
 }

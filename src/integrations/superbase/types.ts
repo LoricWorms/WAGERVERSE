@@ -456,6 +456,16 @@ export type Database = {
       is_admin: {
         Args: { user_id: string }
         Returns: boolean
+      },
+      place_bet_atomic: {
+        Args: { 
+          p_user_id: string,
+          p_match_id: string,
+          p_team_id: string,
+          p_bet_amount: number,
+          p_odds: number
+        }
+        Returns: Array<{ success: boolean, message: string }>
       }
     }
     Enums: {

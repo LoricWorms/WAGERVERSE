@@ -3,8 +3,8 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Plus } from "lucide-react";
+// import { Label } from "@/components/ui/label"; // Replaced by FormLabel
+import { Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -39,6 +39,7 @@ const createTeamSchema = z.object({
 
 export function CreateTeamForm({ onTeamCreated }: CreateTeamFormProps) {
   const [uploading, setUploading] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
 
   const form = useForm<z.infer<typeof createTeamSchema>>({
     resolver: zodResolver(createTeamSchema),
@@ -50,9 +51,8 @@ export function CreateTeamForm({ onTeamCreated }: CreateTeamFormProps) {
     },
   });
 
-  console.log("CreateTeamForm initial isValid:", form.formState.isValid, "isDirty:", form.formState.isDirty, "errors:", form.formState.errors);
-
   const handleCreateTeam = async (values: z.infer<typeof createTeamSchema>) => {
+    setIsCreating(true);
     try {
       await createTeam(values); // Use the service function
       toast.success("Équipe créée avec succès !");
@@ -61,6 +61,8 @@ export function CreateTeamForm({ onTeamCreated }: CreateTeamFormProps) {
     } catch (error) {
       toast.error("Erreur lors de la création de l'équipe");
       console.error(error);
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -104,33 +106,34 @@ export function CreateTeamForm({ onTeamCreated }: CreateTeamFormProps) {
       console.error(error);
     } finally {
       setUploading(false);
+      e.target.value = ""; // Clear the input after upload
     }
   };
 
   return (
-    <Card className="border-border">
+    <Card className="border-border bg-card/50">
       <CardHeader>
-        <CardTitle className="flex items-center">
-          <Plus className="mr-2 h-5 w-5" />
+        <CardTitle className="flex items-center text-xl">
+          <Plus className="mr-2 h-5 w-5 text-primary" />
           Créer une nouvelle équipe
         </CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleCreateTeam)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleCreateTeam)} className="space-y-6">
             <div className="grid md:grid-cols-4 gap-4">
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
-                  <FormItem className="space-y-2">
-                    <FormLabel htmlFor="name">Nom de l'équipe</FormLabel>
+                  <FormItem>
+                    <FormLabel>Nom de l'équipe</FormLabel>
                     <FormControl>
                       <Input
-                        id="name"
                         placeholder="Nom de l'équipe"
-                        className="bg-muted border-border"
+                        className="bg-background border-border"
                         {...field}
+                        disabled={isCreating}
                       />
                     </FormControl>
                     <FormMessage />
@@ -141,14 +144,14 @@ export function CreateTeamForm({ onTeamCreated }: CreateTeamFormProps) {
                 control={form.control}
                 name="tag"
                 render={({ field }) => (
-                  <FormItem className="space-y-2">
-                    <FormLabel htmlFor="tag">Tag</FormLabel>
+                  <FormItem>
+                    <FormLabel>Tag</FormLabel>
                     <FormControl>
                       <Input
-                        id="tag"
                         placeholder="TAG"
-                        className="bg-muted border-border"
+                        className="bg-background border-border"
                         {...field}
+                        disabled={isCreating}
                       />
                     </FormControl>
                     <FormMessage />
@@ -159,41 +162,45 @@ export function CreateTeamForm({ onTeamCreated }: CreateTeamFormProps) {
                 control={form.control}
                 name="founded_year"
                 render={({ field }) => (
-                  <FormItem className="space-y-2">
-                    <FormLabel htmlFor="founded_year">Année de fondation</FormLabel>
+                  <FormItem>
+                    <FormLabel>Année de fondation</FormLabel>
                     <FormControl>
                       <Input
-                        id="founded_year"
                         type="number"
                         placeholder="Année"
-                        className="bg-muted border-border"
+                        className="bg-background border-border"
                         {...field}
                         onChange={(e) => field.onChange(parseInt(e.target.value))}
+                        disabled={isCreating}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormItem className="space-y-2">
-                <FormLabel htmlFor="logo">Logo de l'équipe</FormLabel>
+              <FormItem>
+                <FormLabel>Logo de l'équipe</FormLabel>
                 <FormControl>
                   <Input
-                    id="logo"
                     type="file"
                     accept="image/*"
                     onChange={handleLogoUpload}
-                    disabled={uploading}
-                    className="bg-muted border-border"
+                    disabled={uploading || isCreating}
+                    className="bg-background border-border"
                   />
                 </FormControl>
+                {uploading && <p className="text-sm text-muted-foreground flex items-center"><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Uploading...</p>}
                 {form.formState.errors.logo_url && (
                     <FormMessage>{form.formState.errors.logo_url.message}</FormMessage>
                 )}
               </FormItem>
             </div>
-            <Button type="submit" disabled={uploading || !form.formState.isValid} className="bg-primary hover:bg-primary/90">
-              {uploading ? "Uploading..." : "Créer l'équipe"}
+            <Button type="submit" disabled={uploading || isCreating || !form.formState.isValid} className="w-full">
+              {isCreating ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Création...</>
+              ) : (
+                "Créer l'équipe"
+              )}
             </Button>
           </form>
         </Form>
@@ -201,5 +208,3 @@ export function CreateTeamForm({ onTeamCreated }: CreateTeamFormProps) {
     </Card>
   );
 }
-
-

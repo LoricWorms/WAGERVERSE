@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/superbase/client";
-import { Navbar } from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, Wallet, Trophy } from "lucide-react";
+import { TrendingUp, TrendingDown, Wallet, Trophy, Loader2, Frown, History, CircleDollarSign } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Session } from "@supabase/supabase-js";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
 interface Bet {
   id: string;
@@ -94,15 +95,15 @@ export default function Dashboard() {
 
   const getStatusBadge = (status: string, result: string | null) => {
     if (status === "pending") {
-      return <Badge variant="outline" className="border-warning/50 text-warning">en attente</Badge>;
+      return <Badge variant="outline" className="border-yellow-500/50 text-yellow-500">en attente</Badge>;
     }
     if (result === "won") {
-      return <Badge variant="outline" className="border-success/50 text-success">Gagné</Badge>;
+      return <Badge variant="outline" className="border-emerald-500/50 text-emerald-500">Gagné</Badge>;
     }
     if (result === "lost") {
-      return <Badge variant="outline" className="border-destructive/50 text-destructive">Perdu</Badge>;
+      return <Badge variant="outline" className="border-red-500/50 text-red-500">Perdu</Badge>;
     }
-    return <Badge variant="outline">Unknown</Badge>;
+    return <Badge variant="outline">Inconnu</Badge>;
   };
 
   const loading = isLoadingStats || isLoadingBets;
@@ -111,123 +112,121 @@ export default function Dashboard() {
 
   if (loading || !session) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="container mx-auto px-4 py-12 text-center">
-          <p className="text-muted-foreground">Chargement...</p>
-        </div>
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-theme(spacing.16))] py-12">
+        <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
+        <p className="text-muted-foreground text-lg">Chargement de votre tableau de bord...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      
-      <div className="container mx-auto px-4 py-12">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-2">
-              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                Dashboard
-              </span>
-            </h1>
-            <p className="text-muted-foreground">Suivez vos performances de paris</p>
-          </div>
+    <div className="container mx-auto px-4 py-12">
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-10 text-center">
+          <h1 className="text-5xl font-bold tracking-tight mb-3">
+            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              Votre Tableau de Bord
+            </span>
+          </h1>
+          <p className="text-xl text-muted-foreground">Suivez vos performances de paris en temps réel</p>
+        </div>
 
-          {/* Stats Cards */}
-          <div className="grid md:grid-cols-4 gap-6 mb-8">
-            <Card className="border-border">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm text-muted-foreground flex items-center">
-                  <Wallet className="h-4 w-4 mr-2" />
-                  Solde
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-success">${(stats?.balance || 0).toFixed(2)}</div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-border">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm text-muted-foreground flex items-center">
-                  <TrendingDown className="h-4 w-4 mr-2" />
-                  Pari total
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-warning">{(stats?.total_bet || 0).toFixed(2)}€</div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-border">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm text-muted-foreground flex items-center">
-                  <TrendingUp className="h-4 w-4 mr-2" />
-                  Total gagné
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-success">{(stats?.total_won || 0).toFixed(2)}€</div>
-              </CardContent>
-            </Card>
-
-            <Card className={`border-border ${isProfitable ? 'bg-success/5' : 'bg-destructive/5'}`}>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm text-muted-foreground flex items-center">
-                  <Trophy className="h-4 w-4 mr-2" />
-                  Bénéfice/Perte
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className={`text-2xl font-bold ${isProfitable ? 'text-success' : 'text-destructive'}`}>
-                  {isProfitable ? '+' : ''}{profitLoss.toFixed(2)}€
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Bets History */}
-          <Card className="border-border">
-            <CardHeader>
-              <CardTitle>Historique des paris</CardTitle>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+          <Card className="border-border bg-card/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
+                <CircleDollarSign className="h-4 w-4 mr-2 text-primary" />
+                Solde
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              {bets.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">Aucun pari placé pour le moment</p>
-              ) : (
-                <div className="space-y-4">
-                  {bets.map((bet) => (
-                    <div key={bet.id} className="p-4 rounded-lg bg-muted border border-border flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <span className="font-semibold text-secondary">{bet.match?.game?.name}</span>
-                          {getStatusBadge(bet.status, bet.result)}
-                        </div>
-                        <p className="text-sm text-muted-foreground flex items-center gap-2">
-                          {bet.match?.team1?.name}
-                          {bet.match?.status === "done" && bet.match?.team1_score !== null ? <Badge variant="secondary">{bet.match.team1_score}</Badge> : ""}
-                          <span>vs</span>
-                          {bet.match?.team2?.name}
-                          {bet.match?.status === "done" && bet.match?.team2_score !== null ? <Badge variant="secondary">{bet.match.team2_score}</Badge> : ""}
-                        </p>
-                        <p className="text-sm">
-                          Parié sur <span className="text-primary font-semibold">{bet.team?.name}</span>
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-mono font-bold">{bet.amount.toFixed(2)}€</div>
-                        <div className="text-sm text-muted-foreground">Cote: x{bet.odds}</div>
-                        <div className="text-sm text-accent">A gagner: {bet.potential_win.toFixed(2)}€</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div className="text-3xl font-bold text-emerald-400">{(stats?.balance || 0).toFixed(2)}€</div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border bg-card/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
+                <TrendingDown className="h-4 w-4 mr-2 text-red-400" />
+                Total Parié
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-red-400">{(stats?.total_bet || 0).toFixed(2)}€</div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border bg-card/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
+                <TrendingUp className="h-4 w-4 mr-2 text-emerald-400" />
+                Total Gagné
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-emerald-400">{(stats?.total_won || 0).toFixed(2)}€</div>
+            </CardContent>
+          </Card>
+
+          <Card className={`border-border ${isProfitable ? 'bg-emerald-900/20' : 'bg-red-900/20'}`}>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
+                <Trophy className="h-4 w-4 mr-2" />
+                Bénéfice/Perte
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className={`text-3xl font-bold ${isProfitable ? 'text-emerald-400' : 'text-red-400'}`}>
+                {isProfitable ? '+' : ''}{profitLoss.toFixed(2)}€
+              </div>
             </CardContent>
           </Card>
         </div>
+
+        {/* Bets History */}
+        <Card className="border-border bg-card/50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+                <History className="h-5 w-5 text-muted-foreground" /> Historique des paris
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {bets.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+                <Frown className="h-10 w-10 mb-3" />
+                <p className="text-lg">Aucun pari placé pour le moment.</p>
+                <p className="text-sm">Rendez-vous sur la page Matchs pour commencer.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {bets.map((bet) => (
+                  <div key={bet.id} className="p-4 rounded-lg bg-background border border-border flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-1">
+                        <span className="font-semibold text-lg text-primary">{bet.match?.game?.name}</span>
+                        {getStatusBadge(bet.status, bet.result)}
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {bet.match?.team1?.name} {bet.match?.status === "done" && bet.match?.team1_score !== null ? `(${bet.match.team1_score})` : ""}
+                        <span className="mx-2 font-bold text-foreground">vs</span>
+                        {bet.match?.team2?.name} {bet.match?.status === "done" && bet.match?.team2_score !== null ? `(${bet.match.team2_score})` : ""}
+                      </p>
+                      <p className="text-sm mt-1">
+                        Parié sur <span className="text-accent font-semibold">{bet.team?.name}</span> le {format(new Date(bet.created_at), "PPP", { locale: fr })}
+                      </p>
+                    </div>
+                    <div className="text-right flex flex-col items-end">
+                      <div className="font-mono text-xl font-bold text-emerald-400">{bet.amount.toFixed(2)}€</div>
+                      <div className="text-sm text-muted-foreground">Cote: x{bet.odds.toFixed(2)}</div>
+                      <div className="text-sm text-primary">Potentiel: {bet.potential_win.toFixed(2)}€</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
