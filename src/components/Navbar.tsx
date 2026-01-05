@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { ModeToggle } from "@/components/ui/mode-toggle"; // Import ModeToggle
 
 export const Navbar = () => {
   const navigate = useNavigate();
@@ -61,7 +62,7 @@ export const Navbar = () => {
   };
 
   const UserMenu = () => (
-    <div className="flex items-center gap-4">
+    <>
       <div className="flex items-center gap-2">
         <Wallet className="h-5 w-5 text-primary" />
         <span className="font-semibold text-lg">{balance.toFixed(2)}€</span>
@@ -98,7 +99,7 @@ export const Navbar = () => {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-    </div>
+    </>
   );
 
   const AuthButtons = () => (
@@ -137,6 +138,7 @@ export const Navbar = () => {
           <NavLinks className="hidden md:flex items-center gap-2" />
         </div>
         <div className="flex items-center gap-4">
+          <ModeToggle /> {/* Place ModeToggle for desktop */}
           <div className="hidden md:flex">{user ? <UserMenu /> : <AuthButtons />}</div>
           <div className="md:hidden">
             <DropdownMenu>
@@ -166,6 +168,12 @@ export const Navbar = () => {
                     <DropdownMenuItem asChild><Link to="/auth?mode=signup">Inscription</Link></DropdownMenuItem>
                   </>
                 )}
+                <DropdownMenuSeparator />
+                {/* Place ModeToggle for mobile */}
+                <DropdownMenuItem className="flex justify-between items-center">
+                  <span>Thème</span>
+                  <ModeToggle />
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

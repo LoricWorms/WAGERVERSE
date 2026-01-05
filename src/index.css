@@ -8,25 +8,25 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 224 71% 4%;
-    --foreground: 213 31% 91%;
-    --card: 224 71% 6%;
-    --card-foreground: 213 31% 91%;
-    --popover: 224 71% 4%;
-    --popover-foreground: 213 31% 91%;
-    --primary: 262 88% 66%;
-    --primary-foreground: 213 31% 91%;
-    --secondary: 216 34% 17%;
-    --secondary-foreground: 213 31% 91%;
-    --muted: 216 34% 11%;
-    --muted-foreground: 216 34% 65%;
-    --accent: 216 34% 17%;
-    --accent-foreground: 213 31% 91%;
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 213 31% 91%;
-    --border: 216 34% 11%;
-    --input: 216 34% 11%;
-    --ring: 262 88% 66%;
+    --background: 0 0% 100%; /* White */
+    --foreground: 224 71% 4%; /* Dark text */
+    --card: 0 0% 100%; /* White */
+    --card-foreground: 224 71% 4%; /* Dark text */
+    --popover: 0 0% 100%; /* White */
+    --popover-foreground: 224 71% 4%; /* Dark text */
+    --primary: 262 88% 50%; /* A distinct primary for light mode */
+    --primary-foreground: 0 0% 100%; /* White */
+    --secondary: 210 40% 96.1%; /* Light gray */
+    --secondary-foreground: 222 47% 7%; /* Dark text */
+    --muted: 210 40% 96.1%; /* Light gray */
+    --muted-foreground: 215 20.2% 65.1%; /* Gray */
+    --accent: 210 40% 96.1%; /* Light gray */
+    --accent-foreground: 222 47% 7%; /* Dark text */
+    --destructive: 0 100% 50%; /* Red */
+    --destructive-foreground: 0 0% 100%; /* White */
+    --border: 214.3 31.8% 91.4%; /* Light border */
+    --input: 214.3 31.8% 91.4%; /* Light input */
+    --ring: 262 88% 50%; /* Primary color for ring */
     --success: 142 76% 36%;
     --warning: 38 92% 50%;
     --radius: 0.75rem;
