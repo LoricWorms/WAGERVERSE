@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/superbase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { Team, Match, Game } from "@/integrations/superbase/types";
+import { Team, Match, Game, Tournament } from "@/integrations/superbase/types"; // Import Tournament
 import { EditTeamForm } from "@/components/admin/EditTeamForm";
 import { EditMatchForm } from "@/components/admin/EditMatchForm";
 import { CreateTeamForm } from "@/components/admin/CreateTeamForm";
@@ -39,10 +39,17 @@ import { fetchTeams, deleteTeam } from "@/services/teamService";
 import { fetchMatches, deleteMatch } from "@/services/matchService";
 import { fetchGames } from "@/services/gameService";
 import { checkAdmin as checkAdminService } from "@/services/userService";
+import { fetchTournaments, deleteTournament } from "@/services/tournamentService"; // Import tournament services
+
+// Import tournament specific admin components (will be created next)
+import { CreateTournamentForm } from "@/components/admin/CreateTournamentForm";
+import { EditTournamentForm } from "@/components/admin/EditTournamentForm";
+import { TournamentList } from "@/components/admin/TournamentList";
+
 
 type ItemToDelete = {
   id: string;
-  type: 'team' | 'match';
+  type: 'team' | 'match' | 'tournament'; // Add 'tournament' type
   name: string; // For display in the dialog
 };
 
@@ -54,9 +61,11 @@ export default function Admin() {
   const [editingTeam, setEditingTeam] = useState<Team | null>(null);
   const [editingMatch, setEditingMatch] = useState<Match | null>(null);
   const [editingOddsForMatch, setEditingOddsForMatch] = useState<Match | null>(null);
+  const [editingTournament, setEditingTournament] = useState<Tournament | null>(null); // Add editingTournament state
   const [itemToDelete, setItemToDelete] = useState<ItemToDelete | null>(null);
   const [teamPage, setTeamPage] = useState(1);
   const [matchPage, setMatchPage] = useState(1);
+  const [tournamentPage, setTournamentPage] = useState(1); // Add tournamentPage state
   const [authLoading, setAuthLoading] = useState(true);
 
 
@@ -69,6 +78,12 @@ export default function Admin() {
   const { data: matchesResult, isLoading: isLoadingMatches } = useQuery({
     queryKey: ["matches", matchPage],
     queryFn: () => fetchMatches({ page: matchPage }),
+    enabled: isAdmin,
+  });
+
+  const { data: tournamentsResult, isLoading: isLoadingTournaments } = useQuery({ // Fetch tournaments
+    queryKey: ["tournaments", tournamentPage],
+    queryFn: () => fetchTournaments({ page: tournamentPage }),
     enabled: isAdmin,
   });
 
@@ -93,8 +108,13 @@ export default function Admin() {
   const matches = matchesResult?.data ?? [];
   const matchCount = matchesResult?.count ?? 0;
   const matchTotalPages = Math.ceil(matchCount / PAGE_SIZE);
+  
+  const tournaments = tournamentsResult?.data ?? []; // Access tournaments data
+  const tournamentCount = tournamentsResult?.count ?? 0;
+  const tournamentTotalPages = Math.ceil(tournamentCount / PAGE_SIZE);
 
   const allTeams = allTeamsQueryResult?.data ?? [];
+
 
   useEffect(() => {
     const authenticateUser = async () => {
@@ -149,17 +169,32 @@ export default function Admin() {
     setItemToDelete({ id: match.id, type: 'match', name: `Match ${match.team1.name} vs ${match.team2.name}` });
   };
 
+  const deleteTournamentMutation = useMutation({
+    mutationFn: async (id: string) => await deleteTournament(id),
+    onSuccess: () => {
+      toast.success("Tournoi supprimé");
+      queryClient.invalidateQueries({ queryKey: ["tournaments"] });
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  const handleDeleteTournament = (tournament: Tournament) => {
+    setItemToDelete({ id: tournament.id, type: 'tournament', name: tournament.name });
+  };
+
   const handleConfirmDelete = () => {
     if (!itemToDelete) return;
     if (itemToDelete.type === 'team') {
       deleteTeamMutation.mutate(itemToDelete.id);
     } else if (itemToDelete.type === 'match') {
       deleteMatchMutation.mutate(itemToDelete.id);
+    } else if (itemToDelete.type === 'tournament') { // Handle tournament deletion
+      deleteTournamentMutation.mutate(itemToDelete.id);
     }
     setItemToDelete(null);
   };
 
-  const loadingData = isLoadingTeams || isLoadingMatches || isLoadingGames;
+  const loadingData = isLoadingTeams || isLoadingMatches || isLoadingGames || isLoadingTournaments; // Update loadingData
 
   const statusTranslations: { [key: string]: string } = {
     programmed: "Programmé",
@@ -201,9 +236,10 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="teams" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3"> {/* Updated to 3 columns */}
             <TabsTrigger value="teams">Gestion des équipes</TabsTrigger>
             <TabsTrigger value="matches">Gestion des Matches</TabsTrigger>
+            <TabsTrigger value="tournaments">Gestion des Tournois</TabsTrigger> {/* New tab */}
           </TabsList>
 
           {loadingData ? (
@@ -287,6 +323,37 @@ export default function Admin() {
                       queryClient.invalidateQueries({ queryKey: ["matches", "odds"] });
                     }}
                     onCancel={() => setEditingOddsForMatch(null)}
+                  />
+                )}
+              </TabsContent>
+
+              {/* New TabsContent for Tournaments */}
+              <TabsContent value="tournaments" className="space-y-6">
+                <CreateTournamentForm onTournamentCreated={() => queryClient.invalidateQueries({ queryKey: ["tournaments", tournamentPage] })} />
+                <TournamentList tournaments={tournaments} onEditTournament={setEditingTournament} onDeleteTournament={handleDeleteTournament} />
+                {tournamentTotalPages > 1 && (
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious href="#" onClick={(e) => { e.preventDefault(); setTournamentPage(p => Math.max(1, p - 1)); }} />
+                      </PaginationItem>
+                      <PaginationItem>
+                        <PaginationLink href="#">Page {tournamentPage} sur {tournamentTotalPages}</PaginationLink>
+                      </PaginationItem>
+                      <PaginationItem>
+                        <PaginationNext href="#" onClick={(e) => { e.preventDefault(); setTournamentPage(p => Math.min(tournamentTotalPages, p + 1)); }} />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                )}
+                {editingTournament && (
+                  <EditTournamentForm
+                    tournament={editingTournament}
+                    onSave={() => {
+                      setEditingTournament(null);
+                      queryClient.invalidateQueries({ queryKey: ["tournaments", tournamentPage] });
+                    }}
+                    onCancel={() => setEditingTournament(null)}
                   />
                 )}
               </TabsContent>

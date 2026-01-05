@@ -6,8 +6,7 @@ import { Button } from "@/components/ui/button";
 // import { Label } from "@/components/ui/label"; // Replaced by FormLabel
 import { Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { Team } from "@/integrations/superbase/types"; // Import Team from service
-import { Game } from "@/integrations/superbase/types"; // Import Game from service
+import { Team, Game, Tournament } from "@/integrations/superbase/types"; // Import Team, Game, Tournament
 import { createMatch, MatchFormData } from "@/services/matchService"; // Import service
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -34,6 +33,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/superbase/client"; // Keep for odds creation temporarily
+import { fetchTournaments } from "@/services/tournamentService"; // Import fetchTournaments
+import { useQuery } from "@tanstack/react-query";
 
 
 interface CreateMatchFormProps {
@@ -46,6 +47,7 @@ const createMatchSchema = z.object({
   team1_id: z.string().min(1, "Veuillez sélectionner l'équipe 1."),
   team2_id: z.string().min(1, "Veuillez sélectionner l'équipe 2."),
   game_id: z.string().min(1, "Veuillez sélectionner un jeu."),
+  tournament_id: z.string().optional().nullable(), // Make tournament_id optional
   match_date: z.string()
     .min(1, "Veuillez sélectionner une date et heure pour le match.")
     .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, "Le format de la date et de l'heure doit être AAAA-MM-JJTHH:MM"),
@@ -68,6 +70,7 @@ export function CreateMatchForm({ teams, games, onMatchCreated }: CreateMatchFor
       team1_id: "",
       team2_id: "",
       game_id: "",
+      tournament_id: undefined, // Default to undefined
       match_date: new Date().toISOString().slice(0, 16), // Current date/time for default
       status: "programmed",
       format: "BO3",
@@ -78,10 +81,21 @@ export function CreateMatchForm({ teams, games, onMatchCreated }: CreateMatchFor
 
   const [isCreating, setIsCreating] = useState(false);
 
+  const { data: tournamentsResult, isLoading: isLoadingTournaments } = useQuery({
+    queryKey: ["allTournaments"],
+    queryFn: () => fetchTournaments({ page: 1, pageSize: 1000 }), // Fetch all tournaments for selection
+  });
+  const tournaments = tournamentsResult?.data ?? [];
+
   const handleCreateMatch = async (values: z.infer<typeof createMatchSchema>) => {
     setIsCreating(true);
     try {
-      const { odds_team1, odds_team2, ...matchData } = values;
+      const { odds_team1, odds_team2, tournament_id, ...restMatchData } = values;
+
+      const matchData = {
+        ...restMatchData,
+        tournament_id: tournament_id === "null" ? null : tournament_id, // Convert "null" string to actual null
+      };
 
       const newMatch = await createMatch(matchData as MatchFormData);
       
@@ -193,6 +207,31 @@ export function CreateMatchForm({ teams, games, onMatchCreated }: CreateMatchFor
               />
               <FormField
                 control={form.control}
+                name="tournament_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tournoi (Optionnel)</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value || "null"} disabled={isCreating || isLoadingTournaments}>
+                      <FormControl>
+                        <SelectTrigger className="bg-background border-border">
+                          <SelectValue placeholder="Sélectionnez un tournoi" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="bg-background border-border">
+                        <SelectItem value="null">Aucun</SelectItem> {/* Option for no tournament */}
+                        {tournaments.map((tournament) => (
+                          <SelectItem key={tournament.id} value={tournament.id}>
+                            {tournament.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                 name="match_date"
                 render={({ field }) => (
                   <FormItem>
@@ -209,7 +248,8 @@ export function CreateMatchForm({ teams, games, onMatchCreated }: CreateMatchFor
                   </FormItem>
                 )}
               />
-              <FormField
+            </div>
+            <FormField
                 control={form.control}
                 name="format"
                 render={({ field }) => (
@@ -227,7 +267,6 @@ export function CreateMatchForm({ teams, games, onMatchCreated }: CreateMatchFor
                   </FormItem>
                 )}
               />
-            </div>
             <div className="grid md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}

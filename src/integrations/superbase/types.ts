@@ -466,6 +466,17 @@ export type Database = {
           p_odds: number
         }
         Returns: Array<{ success: boolean, message: string }>
+      },
+      get_tournament_standings: {
+        Args: { p_tournament_id: string },
+        Returns: Array<{
+          team_id: string;
+          team_name: string;
+          team_logo_url: string | null;
+          wins: number;
+          losses: number;
+          points: number;
+        }>
       }
     }
     Enums: {
@@ -635,4 +646,26 @@ export interface MatchOdds {
   match_id: string;
   team_id: string;
   odds: number;
+}
+
+export interface Tournament {
+  id: string;
+  created_at: string | null;
+  end_time: string | null;
+  game_id: string | null;
+  localisation: string | null;
+  name: string;
+  prize_pool: number | null;
+  start_date: string | null;
+  status: string | null; // Using 'status' for interface for better naming, actual DB column is 'statut'
+  updated_at: string | null;
+}
+
+export interface TournamentStanding {
+  team_id: string;
+  team_name: string;
+  team_logo_url: string | null;
+  wins: number;
+  losses: number;
+  points: number;
 }

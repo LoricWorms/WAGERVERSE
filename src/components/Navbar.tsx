@@ -119,7 +119,7 @@ export const Navbar = () => {
         <Link to="/matches">Matchs</Link>
       </Button>
       <Button variant="link" asChild>
-        <Link to="#">Classements</Link>
+        <Link to="/standings">Classements</Link>
       </Button>
       <Button variant="link" asChild>
         <Link to="#">À propos</Link>
@@ -149,7 +149,7 @@ export const Navbar = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuItem asChild><Link to="/matches">Matchs</Link></DropdownMenuItem>
-                <DropdownMenuItem asChild><Link to="#">Classements</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link to="/standings">Classements</Link></DropdownMenuItem>
                 <DropdownMenuItem asChild><Link to="#">À propos</Link></DropdownMenuItem>
                 <DropdownMenuSeparator />
                 {user ? (

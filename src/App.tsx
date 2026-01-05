@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import Matches from "./pages/Matches";
 import Dashboard from "./pages/Dashboard";
 import Admin from "./pages/Admin";
+import Standings from "./pages/Standings"; // Import Standings
 import NotFound from "./pages/NotFound";
 import { ThemeProvider } from "@/components/ui/theme-provider"; // Import ThemeProvider
 
@@ -27,6 +28,7 @@ const App = () => (
               <Route path="/matches" element={<Matches />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/standings" element={<Standings />} /> {/* Add Standings route */}
             </Route>
             <Route path="/auth" element={<Auth />} />
             <Route path="*" element={<NotFound />} />
