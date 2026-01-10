@@ -51,8 +51,12 @@ export default function Auth() {
         toast.success("Compte créé ! Bienvenue sur WAGERVERSE");
         navigate("/matches");
       }
-    } catch (error: any) {
-      toast.error(error.message || "Une erreur est survenue.");
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Une erreur est survenue.");
+      }
     } finally {
       setLoading(false);
     }

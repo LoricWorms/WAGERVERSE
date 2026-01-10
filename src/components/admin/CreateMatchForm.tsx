@@ -111,8 +111,9 @@ export function CreateMatchForm({ teams, games, onMatchCreated }: CreateMatchFor
       toast.success("Match créé avec succès !");
       form.reset();
       onMatchCreated();
-    } catch (error: any) {
-      toast.error(`Erreur lors de la création du match: ${error.message || error}`);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      toast.error(`Erreur lors de la création du match: ${errorMessage}`);
       console.error(error);
     } finally {
       setIsCreating(false);

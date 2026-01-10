@@ -86,8 +86,9 @@ export function EditTournamentForm({ tournament, onSave, onCancel }: EditTournam
       await updateTournament(tournament.id, values as TournamentFormData);
       toast.success("Tournoi mis à jour avec succès !");
       onSave();
-    } catch (error: any) {
-      toast.error(`Erreur lors de la mise à jour du tournoi: ${error.message || error}`);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      toast.error(`Erreur lors de la mise à jour du tournoi: ${errorMessage}`);
       console.error(error);
     } finally {
       setIsSaving(false);

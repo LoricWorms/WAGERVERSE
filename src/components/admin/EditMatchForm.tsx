@@ -87,7 +87,7 @@ export function EditMatchForm({ match, teams, games, onSave, onCancel }: EditMat
       status: match.status || "programmed",
       format: match.format || "BO3",
     });
-  }, [match, form, tournaments]); // Add tournaments to dependency array
+  }, [match, form]); // Add tournaments to dependency array
 
 
   const handleSave = async (values: z.infer<typeof editMatchSchema>) => {
@@ -112,8 +112,9 @@ export function EditMatchForm({ match, teams, games, onSave, onCancel }: EditMat
 
       toast.success("Match mis à jour avec succès !");
       onSave();
-    } catch (error: any) {
-      toast.error(`Erreur lors de la mise à jour du match: ${error.message || error}`);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      toast.error(`Erreur lors de la mise à jour du match: ${errorMessage}`);
       console.error(error);
     } finally {
       setIsSaving(false);

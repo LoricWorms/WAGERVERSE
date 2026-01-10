@@ -23,7 +23,7 @@ import { ODDS_MIN_VALUE } from "@/lib/constants";
 
 // Define a Zod schema for the odds fields dynamically
 const createOddsSchema = (match: Match) => {
-  const schema: { [key: string]: any } = {};
+  const schema: { [key: string]: z.ZodTypeAny } = {};
   if (match.team1) {
     schema[`odds_team1`] = z.number().min(ODDS_MIN_VALUE, `La cote doit être supérieure à ${ODDS_MIN_VALUE.toFixed(2)}.`);
   }
@@ -117,8 +117,9 @@ export function EditOddsForm({ match, onSave, onCancel }: EditOddsFormProps) {
 
       toast.success("Cotes mises à jour avec succès !");
       onSave();
-    } catch (error: any) {
-      toast.error(`Erreur lors de la mise à jour des cotes: ${error.message || error}`);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      toast.error(`Erreur lors de la mise à jour des cotes: ${errorMessage}`);
       console.error(error);
     } finally {
       setIsSaving(false);

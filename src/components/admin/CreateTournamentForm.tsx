@@ -72,8 +72,9 @@ export function CreateTournamentForm({ onTournamentCreated }: CreateTournamentFo
       toast.success("Tournoi créé avec succès !");
       form.reset();
       onTournamentCreated();
-    } catch (error: any) {
-      toast.error(`Erreur lors de la création du tournoi: ${error.message || error}`);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      toast.error(`Erreur lors de la création du tournoi: ${errorMessage}`);
       console.error(error);
     } finally {
       setIsCreating(false);
