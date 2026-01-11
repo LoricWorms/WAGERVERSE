@@ -23,7 +23,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { createTeam } from "@/services/teamService"; // Import the service function
+import { createTeam, TeamFormData } from "@/services/teamService"; // Import the service function
 import { supabase } from "@/integrations/superbase/client"; // Keep for storage for now, will move later
 
 interface CreateTeamFormProps {
@@ -54,12 +54,13 @@ export function CreateTeamForm({ onTeamCreated }: CreateTeamFormProps) {
   const handleCreateTeam = async (values: z.infer<typeof createTeamSchema>) => {
     setIsCreating(true);
     try {
-      await createTeam(values); // Use the service function
+      await createTeam(values as TeamFormData); // Use the service function
       toast.success("Équipe créée avec succès !");
       form.reset();
       onTeamCreated();
     } catch (error) {
-      toast.error("Erreur lors de la création de l'équipe");
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      toast.error(`Erreur lors de la création de l'équipe: ${errorMessage}`);
       console.error(error);
     } finally {
       setIsCreating(false);
