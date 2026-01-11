@@ -23,6 +23,10 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
+import {
   Pagination,
   PaginationContent,
   PaginationItem,
@@ -268,14 +272,18 @@ export default function Admin() {
                   </Pagination>
                 )}
                 {editingTeam && (
-                  <EditTeamForm
-                    team={editingTeam}
-                    onSave={() => {
-                      setEditingTeam(null);
-                      queryClient.invalidateQueries({ queryKey: ["teams", teamPage] });
-                    }}
-                    onCancel={() => setEditingTeam(null)}
-                  />
+                  <Dialog open={!!editingTeam} onOpenChange={(isOpen) => !isOpen && setEditingTeam(null)}>
+                    <DialogContent>
+                      <EditTeamForm
+                        team={editingTeam}
+                        onSave={() => {
+                          setEditingTeam(null);
+                          queryClient.invalidateQueries({ queryKey: ["teams", teamPage] });
+                        }}
+                        onCancel={() => setEditingTeam(null)}
+                      />
+                    </DialogContent>
+                  </Dialog>
                 )}
               </TabsContent>
 
@@ -304,26 +312,34 @@ export default function Admin() {
                   </Pagination>
                 )}
                 {editingMatch && (
-                  <EditMatchForm
-                    match={editingMatch}
-                    teams={allTeams}
-                    games={games}
-                    onSave={() => {
-                      setEditingMatch(null);
-                      queryClient.invalidateQueries({ queryKey: ["matches", matchPage] });
-                    }}
-                    onCancel={() => setEditingMatch(null)}
-                  />
+                  <Dialog open={!!editingMatch} onOpenChange={(isOpen) => !isOpen && setEditingMatch(null)}>
+                    <DialogContent>
+                      <EditMatchForm
+                        match={editingMatch}
+                        teams={allTeams}
+                        games={games}
+                        onSave={() => {
+                          setEditingMatch(null);
+                          queryClient.invalidateQueries({ queryKey: ["matches", matchPage] });
+                        }}
+                        onCancel={() => setEditingMatch(null)}
+                      />
+                    </DialogContent>
+                  </Dialog>
                 )}
                 {editingOddsForMatch && (
-                  <EditOddsForm
-                    match={editingOddsForMatch}
-                    onSave={() => {
-                      setEditingOddsForMatch(null);
-                      queryClient.invalidateQueries({ queryKey: ["matches", "odds"] });
-                    }}
-                    onCancel={() => setEditingOddsForMatch(null)}
-                  />
+                  <Dialog open={!!editingOddsForMatch} onOpenChange={(isOpen) => !isOpen && setEditingOddsForMatch(null)}>
+                    <DialogContent>
+                      <EditOddsForm
+                        match={editingOddsForMatch}
+                        onSave={() => {
+                          setEditingOddsForMatch(null);
+                          queryClient.invalidateQueries({ queryKey: ["matches", "odds"] });
+                        }}
+                        onCancel={() => setEditingOddsForMatch(null)}
+                      />
+                    </DialogContent>
+                  </Dialog>
                 )}
               </TabsContent>
 
@@ -347,14 +363,18 @@ export default function Admin() {
                   </Pagination>
                 )}
                 {editingTournament && (
-                  <EditTournamentForm
-                    tournament={editingTournament}
-                    onSave={() => {
-                      setEditingTournament(null);
-                      queryClient.invalidateQueries({ queryKey: ["tournaments", tournamentPage] });
-                    }}
-                    onCancel={() => setEditingTournament(null)}
-                  />
+                  <Dialog open={!!editingTournament} onOpenChange={(isOpen) => !isOpen && setEditingTournament(null)}>
+                    <DialogContent>
+                      <EditTournamentForm
+                        tournament={editingTournament}
+                        onSave={() => {
+                          setEditingTournament(null);
+                          queryClient.invalidateQueries({ queryKey: ["tournaments", tournamentPage] });
+                        }}
+                        onCancel={() => setEditingTournament(null)}
+                      />
+                    </DialogContent>
+                  </Dialog>
                 )}
               </TabsContent>
             </>
