@@ -23,9 +23,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { updateTournament, TournamentFormData } from "@/services/tournamentService";
-import { Tournament, Game } from "@/integrations/superbase/types"; // Import Tournament and Game type
+import { Tournament, Game } from "@/integrations/superbase/types";
 import { useQuery } from "@tanstack/react-query";
-import { fetchGames } from "@/services/gameService"; // Import fetchGames
+import { fetchGames } from "@/services/gameService";
 
 interface EditTournamentFormProps {
   tournament: Tournament;

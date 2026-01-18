@@ -1,4 +1,4 @@
-import { Team } from "@/integrations/superbase/types"; // Updated import
+import { Team } from "@/integrations/superbase/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2, Frown } from "lucide-react";

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Match } from "@/integrations/superbase/types"; // Match type from types file
+import { Match } from "@/integrations/superbase/types";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -75,7 +75,7 @@ export function EditOddsForm({ match, onSave, onCancel }: EditOddsFormProps) {
           }
         });
         setInitialOdds(currentOdds);
-        form.reset(currentOdds); // Set form values
+        form.reset(currentOdds);
       }
       setIsLoadingOdds(false);
     };

@@ -9,9 +9,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { fetchTournaments } from "@/services/tournamentService";
-import { Tournament, Game, TournamentStanding } from "@/integrations/superbase/types"; // Import TournamentStanding
+import { Tournament, Game, TournamentStanding } from "@/integrations/superbase/types";
 import { Loader2, Trophy, Frown, Users } from "lucide-react";
-import { fetchTournamentStandings } from "@/services/standingService"; // Import fetchTournamentStandings
+import { fetchTournamentStandings } from "@/services/standingService";
 import {
   Table,
   TableBody,

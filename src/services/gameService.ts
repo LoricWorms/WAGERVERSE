@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/superbase/client";
-import { Game } from "@/integrations/superbase/types"; // Import Game type
+import { Game } from "@/integrations/superbase/types";
 
 export async function fetchGames(): Promise<Game[]> {
   const { data, error } = await supabase.from("games").select("*").order("name");
@@ -9,5 +9,3 @@ export async function fetchGames(): Promise<Game[]> {
   }
   return data || [];
 }
-
-// TODO: Add createGame, updateGame, deleteGame functions here if needed.

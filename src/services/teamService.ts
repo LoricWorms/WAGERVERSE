@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/superbase/client";
 import { PAGE_SIZE } from "@/lib/constants";
-import { Team } from "@/integrations/superbase/types"; // Import Team type
+import { Team } from "@/integrations/superbase/types";
 
 export interface TeamFormData {
   name: string;

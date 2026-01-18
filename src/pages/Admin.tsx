@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/superbase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { Team, Match, Game, Tournament } from "@/integrations/superbase/types"; // Import Tournament
+import { Team, Match, Game, Tournament } from "@/integrations/superbase/types";
 import { EditTeamForm } from "@/components/admin/EditTeamForm";
 import { EditMatchForm } from "@/components/admin/EditMatchForm";
 import { CreateTeamForm } from "@/components/admin/CreateTeamForm";
@@ -38,14 +38,12 @@ import { PAGE_SIZE } from "@/lib/constants";
 import { Loader2, ShieldAlert } from "lucide-react";
 
 
-// Import service functions
 import { fetchTeams, deleteTeam } from "@/services/teamService";
 import { fetchMatches, deleteMatch } from "@/services/matchService";
 import { fetchGames } from "@/services/gameService";
 import { checkAdmin as checkAdminService } from "@/services/userService";
-import { fetchTournaments, deleteTournament } from "@/services/tournamentService"; // Import tournament services
+import { fetchTournaments, deleteTournament } from "@/services/tournamentService";
 
-// Import tournament specific admin components (will be created next)
 import { CreateTournamentForm } from "@/components/admin/CreateTournamentForm";
 import { EditTournamentForm } from "@/components/admin/EditTournamentForm";
 import { TournamentList } from "@/components/admin/TournamentList";
@@ -53,8 +51,8 @@ import { TournamentList } from "@/components/admin/TournamentList";
 
 type ItemToDelete = {
   id: string;
-  type: 'team' | 'match' | 'tournament'; // Add 'tournament' type
-  name: string; // For display in the dialog
+  type: 'team' | 'match' | 'tournament';
+  name: string;
 };
 
 export default function Admin() {
@@ -65,11 +63,11 @@ export default function Admin() {
   const [editingTeam, setEditingTeam] = useState<Team | null>(null);
   const [editingMatch, setEditingMatch] = useState<Match | null>(null);
   const [editingOddsForMatch, setEditingOddsForMatch] = useState<Match | null>(null);
-  const [editingTournament, setEditingTournament] = useState<Tournament | null>(null); // Add editingTournament state
+  const [editingTournament, setEditingTournament] = useState<Tournament | null>(null);
   const [itemToDelete, setItemToDelete] = useState<ItemToDelete | null>(null);
   const [teamPage, setTeamPage] = useState(1);
   const [matchPage, setMatchPage] = useState(1);
-  const [tournamentPage, setTournamentPage] = useState(1); // Add tournamentPage state
+  const [tournamentPage, setTournamentPage] = useState(1);
   const [authLoading, setAuthLoading] = useState(true);
 
 
@@ -85,7 +83,7 @@ export default function Admin() {
     enabled: isAdmin,
   });
 
-  const { data: tournamentsResult, isLoading: isLoadingTournaments } = useQuery({ // Fetch tournaments
+  const { data: tournamentsResult, isLoading: isLoadingTournaments } = useQuery({
     queryKey: ["tournaments", tournamentPage],
     queryFn: () => fetchTournaments({ page: tournamentPage }),
     enabled: isAdmin,
@@ -113,7 +111,7 @@ export default function Admin() {
   const matchCount = matchesResult?.count ?? 0;
   const matchTotalPages = Math.ceil(matchCount / PAGE_SIZE);
   
-  const tournaments = tournamentsResult?.data ?? []; // Access tournaments data
+  const tournaments = tournamentsResult?.data ?? [];
   const tournamentCount = tournamentsResult?.count ?? 0;
   const tournamentTotalPages = Math.ceil(tournamentCount / PAGE_SIZE);
 
@@ -192,13 +190,13 @@ export default function Admin() {
       deleteTeamMutation.mutate(itemToDelete.id);
     } else if (itemToDelete.type === 'match') {
       deleteMatchMutation.mutate(itemToDelete.id);
-    } else if (itemToDelete.type === 'tournament') { // Handle tournament deletion
+    } else if (itemToDelete.type === 'tournament') {
       deleteTournamentMutation.mutate(itemToDelete.id);
     }
     setItemToDelete(null);
   };
 
-  const loadingData = isLoadingTeams || isLoadingMatches || isLoadingGames || isLoadingTournaments; // Update loadingData
+  const loadingData = isLoadingTeams || isLoadingMatches || isLoadingGames || isLoadingTournaments;
 
   const statusTranslations: { [key: string]: string } = {
     programmed: "Programmé",
@@ -240,10 +238,10 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="teams" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3"> {/* Updated to 3 columns */}
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="teams">Gestion des équipes</TabsTrigger>
             <TabsTrigger value="matches">Gestion des Matches</TabsTrigger>
-            <TabsTrigger value="tournaments">Gestion des Tournois</TabsTrigger> {/* New tab */}
+            <TabsTrigger value="tournaments">Gestion des Tournois</TabsTrigger>
           </TabsList>
 
           {loadingData ? (
@@ -343,7 +341,6 @@ export default function Admin() {
                 )}
               </TabsContent>
 
-              {/* New TabsContent for Tournaments */}
               <TabsContent value="tournaments" className="space-y-6">
                 <CreateTournamentForm onTournamentCreated={() => queryClient.invalidateQueries({ queryKey: ["tournaments", tournamentPage] })} />
                 <TournamentList tournaments={tournaments} onEditTournament={setEditingTournament} onDeleteTournament={handleDeleteTournament} />

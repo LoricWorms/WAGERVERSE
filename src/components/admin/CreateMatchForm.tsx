@@ -1,13 +1,10 @@
 import { useState } from "react";
-// import { supabase } from "@/integrations/superbase/client"; // No longer needed directly for match creation
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-// import { Input } from "@/components/ui/input"; // Replaced by FormField and shadcn Input
-// import { Label } from "@/components/ui/label"; // Replaced by FormLabel
 import { Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { Team, Game, Tournament } from "@/integrations/superbase/types"; // Import Team, Game, Tournament
-import { createMatch, MatchFormData } from "@/services/matchService"; // Import service
+import { Team, Game, Tournament } from "@/integrations/superbase/types";
+import { createMatch, MatchFormData } from "@/services/matchService";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,7 +16,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input"; // Keep shadcn Input
+import { Input } from "@/components/ui/input";
 import {
   DEFAULT_ODDS,
   MATCH_FORMAT_MIN_LENGTH,
@@ -32,8 +29,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { supabase } from "@/integrations/superbase/client"; // Keep for odds creation temporarily
-import { fetchTournaments } from "@/services/tournamentService"; // Import fetchTournaments
+import { supabase } from "@/integrations/superbase/client";
+import { fetchTournaments } from "@/services/tournamentService";
 import { useQuery } from "@tanstack/react-query";
 
 
@@ -47,7 +44,7 @@ const createMatchSchema = z.object({
   team1_id: z.string().min(1, "Veuillez sélectionner l'équipe 1."),
   team2_id: z.string().min(1, "Veuillez sélectionner l'équipe 2."),
   game_id: z.string().min(1, "Veuillez sélectionner un jeu."),
-  tournament_id: z.string().optional().nullable(), // Make tournament_id optional
+  tournament_id: z.string().optional().nullable(),
   match_date: z.string()
     .min(1, "Veuillez sélectionner une date et heure pour le match.")
     .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, "Le format de la date et de l'heure doit être AAAA-MM-JJTHH:MM"),
@@ -70,8 +67,8 @@ export function CreateMatchForm({ teams, games, onMatchCreated }: CreateMatchFor
       team1_id: "",
       team2_id: "",
       game_id: "",
-      tournament_id: undefined, // Default to undefined
-      match_date: new Date().toISOString().slice(0, 16), // Current date/time for default
+      tournament_id: undefined,
+      match_date: new Date().toISOString().slice(0, 16),
       status: "programmed",
       format: "BO3",
       odds_team1: DEFAULT_ODDS,

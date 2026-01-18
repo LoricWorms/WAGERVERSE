@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Match, Team, Game, Tournament } from "@/integrations/superbase/types"; // Import Tournament
+import { Match, Team, Game, Tournament } from "@/integrations/superbase/types";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 import { MATCH_FORMAT_MIN_LENGTH } from "@/lib/constants";
-import { fetchTournaments } from "@/services/tournamentService"; // Import fetchTournaments
+import { fetchTournaments } from "@/services/tournamentService";
 import { useQuery } from "@tanstack/react-query";
 
 
@@ -42,7 +42,7 @@ const editMatchSchema = z.object({
   team1_id: z.string().min(1, "Veuillez sélectionner l'équipe 1."),
   team2_id: z.string().min(1, "Veuillez sélectionner l'équipe 2."),
   game_id: z.string().min(1, "Veuillez sélectionner un jeu."),
-  tournament_id: z.string().optional().nullable(), // Make tournament_id optional
+  tournament_id: z.string().optional().nullable(),
   match_date: z.string()
     .min(1, "Veuillez sélectionner une date et heure pour le match.")
     .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, "Le format de la date et de l'heure doit être AAAA-MM-JJTHH:MM"),
@@ -60,7 +60,7 @@ export function EditMatchForm({ match, teams, games, onSave, onCancel }: EditMat
       team1_id: match.team1?.id || "",
       team2_id: match.team2?.id || "",
       game_id: match.game?.id || "",
-      tournament_id: match.tournament_id || undefined, // Add tournament_id
+      tournament_id: match.tournament_id || undefined,
       match_date: match.match_date ? match.match_date.substring(0, 16) : new Date().toISOString().substring(0, 16),
       status: match.status || "programmed",
       format: match.format || "BO3",
@@ -82,12 +82,12 @@ export function EditMatchForm({ match, teams, games, onSave, onCancel }: EditMat
       team1_id: match.team1?.id || "",
       team2_id: match.team2?.id || "",
       game_id: match.game?.id || "",
-      tournament_id: match.tournament_id || undefined, // Add tournament_id here too
+      tournament_id: match.tournament_id || undefined,
       match_date: match.match_date ? match.match_date.substring(0, 16) : new Date().toISOString().substring(0, 16),
       status: match.status || "programmed",
       format: match.format || "BO3",
     });
-  }, [match, form]); // Add tournaments to dependency array
+  }, [match, form]);
 
 
   const handleSave = async (values: z.infer<typeof editMatchSchema>) => {

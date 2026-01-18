@@ -171,7 +171,6 @@ export default function Matches() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
-                    {/* Team 1 */}
                     <div className="flex flex-col items-center gap-2">
                       <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center overflow-hidden border border-border">
                         {match.team1.logo_url ? (
@@ -203,13 +202,11 @@ export default function Matches() {
                       </div>
                     </div>
 
-                    {/* VS */}
                     <div className="flex flex-col items-center justify-center text-muted-foreground text-2xl font-bold">
                       VS
                       <span className="text-xs font-normal">({match.format})</span>
                     </div>
 
-                    {/* Team 2 */}
                     <div className="flex flex-col items-center gap-2">
                       <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center overflow-hidden border border-border">
                         {match.team2.logo_url ? (

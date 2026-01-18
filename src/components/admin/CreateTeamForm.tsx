@@ -1,9 +1,7 @@
 import { useState } from "react";
-// import { supabase } from "@/integrations/superbase/client"; // Removed direct supabase import
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-// import { Label } from "@/components/ui/label"; // Replaced by FormLabel
 import { Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -23,8 +21,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { createTeam, TeamFormData } from "@/services/teamService"; // Import the service function
-import { supabase } from "@/integrations/superbase/client"; // Keep for storage for now, will move later
+import { createTeam, TeamFormData } from "@/services/teamService";
+import { supabase } from "@/integrations/superbase/client";
 
 interface CreateTeamFormProps {
   onTeamCreated: () => void;
@@ -54,7 +52,7 @@ export function CreateTeamForm({ onTeamCreated }: CreateTeamFormProps) {
   const handleCreateTeam = async (values: z.infer<typeof createTeamSchema>) => {
     setIsCreating(true);
     try {
-      await createTeam(values as TeamFormData); // Use the service function
+      await createTeam(values as TeamFormData);
       toast.success("Équipe créée avec succès !");
       form.reset();
       onTeamCreated();

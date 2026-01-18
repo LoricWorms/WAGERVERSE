@@ -19,7 +19,6 @@ const Index = () => {
   return (
     <div className="flex flex-col items-center">
 
-      {/* Hero Section */}
       <section className="w-full text-center py-24 md:py-32 relative overflow-hidden">
         <div className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 w-[60rem] h-[60rem] rounded-full bg-primary/10 blur-3xl -z-10" />
         <div className="absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 w-[40rem] h-[40rem] rounded-full bg-secondary/10 blur-3xl -z-10" />
@@ -44,13 +43,11 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Featured Games Section */}
       <section className="py-16 text-center container">
         <h2 className="text-sm uppercase text-muted-foreground font-semibold tracking-widest">
           Jeux Populaires
         </h2>
         <div className="flex justify-center items-center gap-8 md:gap-12 mt-6 flex-wrap">
-          {/* Replace with actual game logos */}
           <span className="text-2xl font-semibold text-muted-foreground">League of Legends</span>
           <span className="text-2xl font-semibold text-muted-foreground">CS:GO</span>
           <span className="text-2xl font-semibold text-muted-foreground">Valorant</span>
@@ -59,7 +56,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="w-full py-24 md:py-32 bg-card/30">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
@@ -82,7 +78,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Testimonials Section */}
       <section className="py-24 md:py-32">
         <div className="container mx-auto px-4 max-w-4xl text-center">
             <Users className="h-10 w-10 text-primary mx-auto mb-4" />
@@ -99,7 +94,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Final CTA Section */}
       <section className="w-full py-24 md:py-32 bg-gradient-to-t from-primary/10">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Prêt à placer votre premier pari ?</h2>

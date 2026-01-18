@@ -1,7 +1,6 @@
 import { supabase } from "@/integrations/superbase/client";
 import { Tournament } from "@/integrations/superbase/types";
 
-// Type for tournament creation/update data
 export type TournamentFormData = Omit<Tournament, "id" | "created_at" | "updated_at">;
 
 export async function fetchTournaments({ page = 1, pageSize = 10 }: { page?: number; pageSize?: number } = {}) {
@@ -51,7 +50,6 @@ export async function fetchTournamentById(id: string) {
 }
 
 export async function createTournament(tournament: TournamentFormData) {
-  // Use tournament data directly, 'status' is now correct
   const { data, error } = await supabase
     .from("tournaments")
     .insert(tournament)
@@ -66,7 +64,6 @@ export async function createTournament(tournament: TournamentFormData) {
 }
 
 export async function updateTournament(id: string, tournament: Partial<TournamentFormData>) {
-  // Use tournament data directly, 'status' is now correct
   const { data, error } = await supabase
     .from("tournaments")
     .update(tournament)

@@ -1,4 +1,4 @@
-import { Match } from "@/integrations/superbase/types"; // Updated import
+import { Match } from "@/integrations/superbase/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

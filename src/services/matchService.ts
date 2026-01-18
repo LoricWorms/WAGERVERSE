@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/superbase/client";
 import { PAGE_SIZE } from "@/lib/constants";
-import { Match, Team } from "@/integrations/superbase/types"; // Import Match and Team types
+import { Match, Team } from "@/integrations/superbase/types";
 
 export interface MatchFormData {
   team1_id: string;
@@ -8,7 +8,6 @@ export interface MatchFormData {
   start_time: string; // ISO string
   odds_team1: number;
   odds_team2: number;
-  // Add other properties as they become relevant for creation
   game_id: string;
   status: string;
   format: string;

@@ -15,5 +15,3 @@ export async function checkAdmin(userId: string): Promise<boolean> {
   }
   return data !== null;
 }
-
-// TODO: Add other user-related service functions if needed.

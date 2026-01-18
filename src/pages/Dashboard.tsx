@@ -131,7 +131,6 @@ export default function Dashboard() {
           <p className="text-xl text-muted-foreground">Suivez vos performances de paris en temps réel</p>
         </div>
 
-        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           <Card className="border-border bg-card/50">
             <CardHeader className="pb-2">
@@ -184,7 +183,6 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* Bets History */}
         <Card className="border-border bg-card/50">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

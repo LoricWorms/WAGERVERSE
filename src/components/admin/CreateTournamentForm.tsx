@@ -23,9 +23,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { createTournament, TournamentFormData } from "@/services/tournamentService";
-import { Game } from "@/integrations/superbase/types"; // Import Game type
+import { Game } from "@/integrations/superbase/types";
 import { useQuery } from "@tanstack/react-query";
-import { fetchGames } from "@/services/gameService"; // Import fetchGames
+import { fetchGames } from "@/services/gameService";
 
 interface CreateTournamentFormProps {
   onTournamentCreated: () => void;
